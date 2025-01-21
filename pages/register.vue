@@ -1,0 +1,194 @@
+<template>
+  <div class="register-container container-fluid">
+    <div class="info-section px-5">
+      <nuxt-link to="/"> <!-- Membungkus logo dengan nuxt-link -->
+        <img src="../asset/logo/storytimeLogo.png" alt="Storytime Logo" class="logo" />
+      </nuxt-link>
+      <div class="align-items-center justify-content-center judulRegis">
+        <h1 class="h1Regis">Join the World's Most-Loved Social Storytelling Platform!</h1>
+        <p class="pRegis">Create an account to explore interesting articles, connect with like-minded people, and share your own stories.</p>
+        <img src="../asset/register/imgRegister.png" alt="Register Image" class="register-image py-3" />
+      </div>
+    </div>
+    <div class="form-section">
+      <h2 class="fw-bold mb-5">Create Account</h2>
+      <form @submit.prevent="createAccount">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" v-model="form.name" placeholder="Enter your name" required />
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" v-model="form.username" placeholder="Enter your username" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" v-model="form.email" placeholder="Enter your email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" v-model="form.password" placeholder="Enter your chosen password" required />
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input type="password" id="confirmPassword" v-model="form.confirm_password" placeholder="Re-enter your chosen password" required />
+        </div>
+        <button type="submit" class="create-account-button">Create Account</button>
+      </form>
+      <p class="mt-5">Already have an account? <nuxt-link to="/login" class="fw-bold">Login</nuxt-link></p>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref } from 'vue';
+import { useAuthStore } from '../store/auth'; // Importing Pinia store
+import { useRouter } from 'vue-router'; // Importing useRouter
+
+export default {
+  setup() {
+    const authStore = useAuthStore();
+    const router = useRouter(); // Initialize the router
+
+    const form = ref({
+      name: '',
+      username: '',
+      email: '',
+      password: '',
+      confirm_password: ''
+    });
+
+    const error = ref(null); // Store error messages
+
+    const createAccount = async () => {
+      error.value = null; // Reset error before registration
+
+      // Validate password
+      if (form.value.password.length < 8) {
+        error.value = "Password must be at least 8 characters long.";
+        return;
+      }
+
+      if (form.value.password !== form.value.confirm_password) {
+        error.value = "Passwords do not match!";
+        return;
+      }
+
+      try {
+        // Call registerUser action from Pinia
+        await authStore.registerUser(form.value);
+        // Navigate to the index page after successful registration
+        router.push('/'); // Redirect to the home page
+      } catch (err) {
+        error.value = err.message || 'Registration failed'; // Handle errors
+      }
+    };
+
+    return {
+      form,
+      error,
+      createAccount
+    };
+  }
+}
+</script>
+
+<style scoped>
+.register-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  height: 100vh;
+  border-radius: 8px;
+}
+
+.info-section {
+  width: 50%;
+  padding-left: 35px;
+  background-color: #F0F5ED;
+  font-family: playfair-display, serif;
+  height: fit-content;
+}
+
+.judulRegis {
+  margin-top: 50px;
+}
+
+.h1Regis {
+  font-size: 50px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  justify-content: center;
+}
+
+.pRegis {
+  font-size: 20px;
+  margin-bottom: 20px;
+  font-family: dm-sans, sans-serif;
+}
+
+.logo {
+  width: 100%; 
+  max-width: 200px; 
+  margin-bottom: 20px; 
+  margin-top: 20px;
+}
+
+.register-image {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.form-section {
+  width: 50%;
+  padding: 50px 150px;
+  font-family: dm-sans, sans-serif;
+}
+
+h2 {
+  margin-bottom: 20px; 
+}
+
+.form-group {
+  margin-bottom: 15px;
+  width: 100%;
+  font-size: small;
+}
+
+label {
+  display: block;
+  margin-bottom: 15px;
+}
+
+input {
+  width: 100%;
+  padding: 20px; 
+  border: 2px solid #cccccc; 
+  border-radius: 10px; 
+}
+
+.create-account-button {
+  background-color: #466543;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px; 
+  cursor: pointer;
+  transition: background-color 0.3s;  
+  width: 50%;
+  font-size: large;
+}
+
+.create-account-button:hover {
+  background-color: #364934;
+}
+
+p {
+  font-size: medium;
+}
+
+a {
+  color: #364934; 
+  text-decoration: none; 
+}
+</style>

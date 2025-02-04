@@ -1,8 +1,10 @@
 <template>          
   <Header></Header>            
     <div class="add-story container">          
-      <div class="d-flex align-items-center">        
-          <i class="fa-solid fa-arrow-left fs-1 me-5"></i>        
+      <div class="d-flex align-items-center"> 
+          <nuxt-link to="/profile">          
+            <i class="text-dark fa-solid fa-arrow-left fs-1 me-5"></i>        
+          </nuxt-link>        
           <h1>Write Story</h1>          
       </div>        
       <form @submit.prevent="submitStory">          
@@ -19,26 +21,27 @@
           </select>          
         </div>          
           
-        <div class="form-content my-5">          
-          <label for="content">Content</label>          
-          <div class="content-editor">    
-            <div class="toolbar">    
-              <select @change="format('formatBlock', $event.target.value)">    
-                <option value="p">Normal</option>    
-                <option value="h1">Heading 1</option>    
-                <option value="h2">Heading 2</option>    
-                <option value="h3">Heading 3</option>    
-              </select>    
-              <button type="button" @click="format('bold')" title="Bold"><i class="fa-solid fa-bold"></i></button>    
-              <button type="button" @click="format('italic')" title="Italic"><i class="fa-solid fa-italic"></i></button>    
-              <button type="button" @click="format('underline')" title="Underline"><i class="fa-solid fa-underline"></i></button>    
-              <button type="button" @click="format('createLink', prompt('Enter URL:'))" title="Link"><i class="fa-solid fa-link"></i></button>    
-              <button type="button" @click="format('insertOrderedList')" title="Ordered List"><i class="fa-solid fa-list-ol"></i></button>    
-              <button type="button" @click="format('insertUnorderedList')" title="Unordered List"><i class="fa-solid fa-list-ul"></i></button>    
-            </div>    
-            <textarea v-model="content" id="content" placeholder="Enter content here" required></textarea>    
-          </div>    
-        </div>          
+        <div class="form-content my-5">
+  <label for="content">Content</label>
+  <div class="content-editor">
+    <div class="toolbar">
+      <select @change="format('formatBlock', $event.target.value)">
+        <option value="p">Normal</option>
+        <option value="h1">Heading 1</option>
+        <option value="h2">Heading 2</option>
+        <option value="h3">Heading 3</option>
+      </select>
+      <button type="button" @click="format('bold')" title="Bold"><i class="fa-solid fa-bold ms-3 me-3"></i></button>
+      <button type="button" @click="format('italic')" title="Italic"><i class="fa-solid fa-italic me-3"></i></button>
+      <button type="button" @click="format('underline')" title="Underline"><i class="fa-solid fa-underline me-3"></i></button>
+      <button type="button" @click="format('createLink', prompt('Enter URL:'))" title="Link"><i class="fa-solid fa-link me-3"></i></button>
+      <button type="button" @click="format('insertOrderedList')" title="Ordered List"><i class="fa-solid fa-list-ol me-3"></i></button>
+      <button type="button" @click="format('insertUnorderedList')" title="Unordered List"><i class="fa-solid fa-list-ul"></i></button>
+    </div>
+    <div class="textarea-wrapper" contenteditable="true" id="content" @input="updateContent($event)" placeholder="Enter content here"></div>
+  </div>
+</div>
+        
           
         <div class="form-cover-image my-5">          
           <label for="coverImage" class="me-3">Cover Image</label>          
@@ -97,7 +100,16 @@ export default {
 };          
 </script>          
     
-<style scoped>          
+<style scoped>  
+
+.fontPlayfair {
+  font-family: playfair-display, serif;
+}
+
+.fontDmSans {
+  font-family: dm-sans, sans-serif;
+}
+
 .add-story {          
   margin: 0 auto;          
   padding: 20px;            
@@ -144,22 +156,53 @@ export default {
   margin-bottom: 15px;          
 }          
     
-.content-editor {    
-  position: relative;    
-}    
-    
-.toolbar {    
-  display: flex;    
-  margin-bottom: 10px;    
-}    
-    
-.toolbar button, .toolbar select {    
-  margin-right: 5px;    
-  cursor: pointer;    
-  border: none;    
-  background: none;    
-  font-size: 16px;    
-}    
+.content-editor {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+.toolbar {
+  display: flex;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ccc;
+  padding: 5px;
+}
+
+.toolbar select,
+.toolbar button {
+  margin-right: 5px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.toolbar button i {
+  pointer-events: none;
+}
+
+.toolbar button:hover{
+  color: #364934;
+}
+
+.textarea-wrapper {
+  min-height: 150px;
+  padding: 10px;
+  font-size: 14px;
+  border: none;
+  outline: none;
+  resize: none;
+  white-space: pre-wrap;
+}
+
+.textarea-wrapper:empty::before {
+  content: attr(placeholder);
+  color: #999;
+  display: block;
+}
+
     
 .form-content textarea {        
   width: 100%;        

@@ -69,11 +69,11 @@ export default {
 }    
     
 .card-image {      
-  border-radius: 10px;      
-  width: 100%;      
-  height: auto;      
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   transition: opacity 0.3s ease;      
-}      
+}           
       
 .card {        
   border: none;         
@@ -128,7 +128,11 @@ export default {
 }      
       
 .image-container {      
-  position: relative;      
+  position: relative;   
+  width: 100%;
+  height: 400px; /* Fixed height */
+  overflow: hidden;
+  border-radius: 10px;   
 }      
     
 .bookmark-icon {      

@@ -1,431 +1,380 @@
-<template>    
-  <Header></Header>    
-  <div class="container">    
-    <h1 class="h1Judul">  
-      <span v-if="isLoggedIn">Hi, {{ user?.username }}.</span>  
-    </h1> 
-    <h1 class="h1Judul">Welcome to Storytime</h1>    
-    <p class="pJudul">    
-      The world's most-loved social storytelling platform. Storytime connects a global community of 90 million readers and writers through the power of story.    
-    </p>    
-    <div class="search-container">    
-      <input type="text" placeholder="Search story" class="search-input" />    
-      <i class="fa-solid fa-magnifying-glass search-icon"></i>    
-    </div>    
-    <div class="imgAwal">    
-      <img src="../asset/home/imgJudul.png" alt="imgJudul" class="imgJudul" />    
-    </div>    
+<template>      
+  <Header></Header>      
+  <div class="container">      
+    <h1 class="h1Judul">    
+      <span v-if="isLoggedIn">Hi, {{ user?.username }}.</span>    
+    </h1>   
+    <h1 class="h1Judul">Welcome to Storytime</h1>      
+    <p class="pJudul">      
+      The world's most-loved social storytelling platform. Storytime connects a global community of 90 million readers and writers through the power of story.      
+    </p>      
+    <div class="search-container">      
+      <input type="text" placeholder="Search story" class="search-input" />      
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>      
+    </div>      
+    <div class="imgAwal">      
+      <img src="../asset/home/imgJudul.png" alt="imgJudul" class="imgJudul" />      
+    </div>      
+      
+    <!-- Latest Stories Section -->      
+    <div class="latest-stories">      
+      <div class="latest-judul justify-content-between align-items-center">      
+        <h2 class="h2Judul">Latest Story</h2>   
+        <nuxt-link class="d-flex explore text-decoration-none" to="/allStory">       
+          <p class="pExplore me-2">Explore More</p>       
+          <i class="fa-solid fa-arrow-right fs-3"></i>    
+        </nuxt-link>    
+      </div>      
+      <div class="custom-hr">      
+        <hr>      
+      </div>      
+      <div class="stories-grid">      
+    <CardLatest      
+      v-for="story in stories"      
+      :key="story.id"      
+      :imageSrc="`${ngrokUrl}/storage/${story.content_images[0].path}`"      
+      :profilePic="`${ngrokUrl}/storage/${story.user.image}`"      
+      :title="story.title"      
+      :description="story.content"      
+      :userName="story.user.username"      
+      :createdAt="formatDate(story.created_at)"      
+      :category="story.category.name"      
+    />      
+  </div>       
+    </div>      
     
-    <!-- Latest Stories Section -->    
-    <div class="latest-stories">    
-      <div class="latest-judul justify-content-between align-items-center">    
-        <h2 class="h2Judul">Latest Story</h2> 
-        <nuxt-link class="d-flex explore text-decoration-none" to="/allStory">     
+    <!-- Comedy Section -->      
+    <div class="container-fluid comedy-section">      
+      <div class="comedy-judul justify-content-between align-items-center">      
+        <h2 class="h2Judul">Comedy</h2>      
+        <div class="d-flex explore">     
           <p class="pExplore me-2">Explore More</p>     
           <i class="fa-solid fa-arrow-right fs-3"></i>  
-        </nuxt-link>  
-      </div>    
-      <div class="custom-hr">    
-        <hr>    
-      </div>    
-      <div class="stories-grid">    
-        <CardLatest    
-          v-for="(story, index) in stories"    
-          :key="index"    
-          :imageSrc="story.image"    
-          :profilePic="story.profilePic"    
-          :title="story.title"    
-          :description="story.description"    
-          :userName="story.userName"    
-          :createdAt="story.createdAt"    
-          :category="story.category"    
-        />    
-      </div>    
-    </div>    
-  
-    <!-- Comedy Section -->    
-    <div class="container-fluid comedy-section">    
-      <div class="comedy-judul justify-content-between align-items-center">    
-        <h2 class="h2Judul">Comedy</h2>    
-        <div class="d-flex explore">   
-          <p class="pExplore me-2">Explore More</p>   
-          <i class="fa-solid fa-arrow-right fs-3"></i>
-        </div>    
-      </div>    
-      <div class="custom-hr">    
-        <hr>    
-      </div>    
-      <div class="row">    
-        <div class="col-lg-8 col-md-6">    
-          <CardBig    
-            v-for="(comedy, index) in comedies"    
-            :key="index"    
-            :imageSrc="comedy.image"    
-            :profilePic="comedy.profilePic"    
-            :title="comedy.title"    
-            :description="comedy.description"    
-            :userName="comedy.userName"    
-            :createdAt="comedy.createdAt"    
-            :category="comedy.category"    
-          />    
-        </div>    
-        <div class="col-lg-4 col-md-6 ">    
-          <div class="d-flex flex-column">    
-            <CardSmall    
-              v-for="(smallComedy, index) in smallComedies"    
-              :key="index"    
-              :imageSrc="smallComedy.image"    
-              :profilePic="smallComedy.profilePic"    
-              :title="smallComedy.title"    
-              :description="smallComedy.description"    
-              :userName="smallComedy.userName"    
-              :createdAt="smallComedy.createdAt"    
-              :category="smallComedy.category"    
-            />    
-          </div>    
-        </div>    
-      </div>    
-    </div>    
-  
-    <!-- Romance Section -->      
-    <div class="romance-section">      
-      <div class="romance-judul justify-content-between align-items-center">      
-        <h2 class="h2Judul">Romance</h2>      
-        <div class="d-flex explore">   
-          <p class="pExplore me-2">Explore More</p>   
-          <i class="fa-solid fa-arrow-right fs-3"></i>
-        </div>     
+        </div>      
       </div>      
       <div class="custom-hr">      
         <hr>      
       </div>      
       <div class="row">      
-        <div class="col-lg-4 col-md-6" v-for="(romance, index) in romances" :key="index">      
-          <Card      
-            :imageSrc="romance.image"      
-            :profilePic="romance.profilePic"      
-            :title="romance.title"      
-            :description="romance.description"      
-            :userName="romance.userName"      
-            :createdAt="romance.createdAt"     
-          />      
+        <div class="col-lg-8 col-md-6">      
+          <CardBig      
+           v-for="(comedy, index) in comedies.slice(0, 1)" 
+           :key="index"      
+           :imageSrc="`${ngrokUrl}/storage/${comedy.content_images[0].path}`"      
+           :profilePic="`${ngrokUrl}/storage/${comedy.user.image}`"      
+           :title="comedy.title"      
+           :description="comedy.content"      
+           :userName="comedy.user.username"      
+           :createdAt="formatDate(comedy.created_at)"      
+           :category="comedy.category"      
+         />      
+       </div>      
+       <div class="col-lg-4 col-md-6">      
+         <div class="d-flex flex-column">      
+           <CardSmall      
+             v-for="(comedy, index) in comedies.slice(1, 3)" 
+             :key="index"      
+             :imageSrc="`${ngrokUrl}/storage/${comedy.content_images[0].path}`"      
+             :profilePic="`${ngrokUrl}/storage/${comedy.user.image}`"      
+             :title="comedy.title"      
+             :description="comedy.content"      
+             :userName="comedy.user.username"      
+             :createdAt="formatDate(comedy.created_at)"      
+             :category="comedy.category"      
+           />      
+          </div>      
         </div>      
       </div>      
     </div>      
     
-    <!-- Horror Section -->    
-    <div class="container-fluid horror-section">    
-      <div class="horror-judul justify-content-between align-items-center">    
-        <h2 class="h2Judul">Horror</h2>    
-        <div class="d-flex explore">   
-          <p class="pExplore me-2">Explore More</p>   
-          <i class="fa-solid fa-arrow-right fs-3"></i>
-        </div> 
-      </div>    
-      <div class="custom-hr">    
-        <hr>    
-      </div>    
-      <div class="row">    
-        <div class="col-lg-8 col-md-6">    
-          <CardBig    
-            v-for="(horror, index) in horrors.slice(0, 1)"    
-            :key="index"    
-            :imageSrc="horror.image"    
-            :profilePic="horror.profilePic"    
-            :title="horror.title"    
-            :description="horror.description"    
-            :userName="horror.userName"    
-            :createdAt="horror.createdAt"    
-            :category="horror.category"    
-          />    
-        </div>    
-        <div class="col-lg-4 col-md-6">    
-          <div class="d-flex flex-column card-small">    
-            <CardSmall    
-              v-for="(smallHorror, index) in smallHorrors"    
-              :key="index"    
-              :imageSrc="smallHorror.image"    
-              :profilePic="smallHorror.profilePic"    
-              :title="smallHorror.title"    
-              :description="smallHorror.description"    
-              :userName="smallHorror.userName"    
-              :createdAt="smallHorror.createdAt"    
-              :category="smallHorror.category"    
-            />    
-          </div>    
-        </div>    
-      </div>    
-    </div>    
-
-    <!-- More Categories Section -->  
-    <div class="more-categories">  
-      <h2 class="h2Judul">More Categories</h2>  
-      <div class="custom-hr">    
-        <hr>
-      </div>
-      <div class="categories-container">  
-        <button class="category-button fontDmSans">Adventure</button>  
-        <button class="category-button fontDmSans">Fiction</button>  
-        <button class="category-button fontDmSans">Fantasy</button>  
-        <button class="category-button fontDmSans">Drama</button>  
-        <button class="category-button fontDmSans">Heartfelt</button>  
-        <button class="category-button fontDmSans">Mystery</button>  
-      </div>  
-    </div>  
-
-    <!-- Login Modal -->    
-    <div v-if="showLoginModal" class="modal">    
-      <div class="modal-content">    
-        <img src="../asset/icon/iconSuccess.png" alt="Success" class="checkmark me-2" />    
-        <p class="modal-message my-auto">You have successfully logged in.</p>    
-        <i class="fa-solid fa-xmark close ms-5" @click="closeLoginModal"></i>    
-      </div>    
-    </div>    
-    
-    <!-- Register Modal -->    
-    <div v-if="showRegisterModal" class="modal">    
-      <div class="modal-content">    
-        <img src="../asset/icon/iconSuccess.png" alt="Success" class="checkmark me-2" />    
-        <p class="modal-message my-auto">You have successfully registered.</p>    
-        <i class="fa-solid fa-xmark close ms-5" @click="closeRegisterModal"></i>    
-      </div>    
-    </div>    
-  </div>
-  <Footer></Footer>    
-</template>    
-    
-<script>    
-import { useAuthStore } from '@/store/auth';  
-import { ref, onMounted, computed } from 'vue';  
-import Cookies from 'js-cookie'; // Import js-cookie for cookie management  
-import Card from '@/components/Card.vue'; // Import Card.vue    
-import CardBig from '@/components/CardBig.vue'; // Import CardBig.vue    
-import CardSmall from '@/components/CardSmall.vue'; // Import CardSmall.vue  
-import CardLatest from '@/components/CardLatest.vue';  
-import imageSrc from '../asset/home/test.jpg';    
-import profilePic from '../asset/home/test.jpg';    
-    
-export default {    
-  components: {    
-    Card, // Register Card component    
-    CardBig, // Register CardBig component    
-    CardSmall, // Register CardSmall component    
-    CardLatest,
-  },    
-  setup() {    
-    const authStore = useAuthStore();  
-    const user = ref(null); // State untuk menyimpan data pengguna  
-    const isLoggedIn = computed(() => {  
-      return Cookies.get('isLoggedIn') === 'true'; // Cek status login dari cookies  
-    });  
+    <!-- Romance Section -->        
+    <div class="romance-section">        
+      <div class="romance-judul justify-content-between align-items-center">        
+        <h2 class="h2Judul">Romance</h2>        
+        <div class="d-flex explore">     
+          <p class="pExplore me-2">Explore More</p>     
+          <i class="fa-solid fa-arrow-right fs-3"></i>  
+        </div>       
+      </div>        
+      <div class="custom-hr">        
+        <hr>        
+      </div>        
+      <div class="row">        
+        <div class="col-lg-4 col-md-6" v-for="(romance, index) in romances.slice(0, 3)" :key="index">        
+          <Card        
+            :imageSrc="`${ngrokUrl}/storage/${romance.content_images[0].path}`"        
+            :profilePic="`${ngrokUrl}/storage/${romance.user.image}`"        
+            :title="romance.title"        
+            :description="romance.content"        
+            :userName="romance.user.username"        
+            :createdAt="formatDate(romance.created_at)"       
+          />        
+        </div>        
+      </div>        
+    </div>        
+      
+    <!-- Horror Section -->      
+    <div class="container-fluid horror-section">      
+      <div class="horror-judul justify-content-between align-items-center">      
+        <h2 class="h2Judul">Horror</h2>      
+        <div class="d-flex explore">     
+          <p class="pExplore me-2">Explore More</p>     
+          <i class="fa-solid fa-arrow-right fs-3"></i>  
+        </div>   
+      </div>      
+      <div class="custom-hr">      
+        <hr>      
+      </div>      
+      <div class="row">      
+        <div class="col-lg-8 col-md-6">      
+          <CardBig      
+            v-for="(horror, index) in horrors.slice(0, 1)"      
+            :key="index"      
+            :imageSrc="horror.image"      
+            :profilePic="horror.profilePic"      
+            :title="horror.title"      
+            :description="horror.description"      
+            :userName="horror.userName"      
+            :createdAt="horror.createdAt"      
+            :category="horror.category"      
+          />      
+        </div>      
+        <div class="col-lg-4 col-md-6">      
+          <div class="d-flex flex-column card-small">      
+            <CardSmall      
+              v-for="(smallHorror, index) in smallHorrors"      
+              :key="index"      
+              :imageSrc="smallHorror.image"      
+              :profilePic="smallHorror.profilePic"      
+              :title="smallHorror.title"      
+              :description="smallHorror.description"      
+              :userName="smallHorror.userName"      
+              :createdAt="smallHorror.createdAt"      
+              :category="smallHorror.category"      
+            />      
+          </div>      
+        </div>      
+      </div>      
+    </div>      
   
-    // Ambil data pengguna dari cookies  
-    const getUserData = () => {  
-      const userData = Cookies.get('user');  
-      return userData ? JSON.parse(userData) : null;  
+    <!-- More Categories Section -->    
+    <div class="more-categories">    
+      <h2 class="h2Judul">More Categories</h2>    
+      <div class="custom-hr">      
+        <hr>  
+      </div>  
+      <div class="categories-container">    
+        <button class="category-button fontDmSans">Adventure</button>    
+        <button class="category-button fontDmSans">Fiction</button>    
+        <button class="category-button fontDmSans">Fantasy</button>    
+        <button class="category-button fontDmSans">Drama</button>    
+        <button class="category-button fontDmSans">Heartfelt</button>    
+        <button class="category-button fontDmSans">Mystery</button>    
+      </div>    
+    </div>    
+  
+    <!-- Login Modal -->      
+    <div v-if="showLoginModal" class="modal">      
+      <div class="modal-content">      
+        <img src="../asset/icon/iconSuccess.png" alt="Success" class="checkmark me-2" />      
+        <p class="modal-message my-auto">You have successfully logged in.</p>      
+        <i class="fa-solid fa-xmark close ms-5" @click="closeLoginModal"></i>      
+      </div>      
+    </div>      
+      
+    <!-- Register Modal -->      
+    <div v-if="showRegisterModal" class="modal">      
+      <div class="modal-content">      
+        <img src="../asset/icon/iconSuccess.png" alt="Success" class="checkmark me-2" />      
+        <p class="modal-message my-auto">You have successfully registered.</p>      
+        <i class="fa-solid fa-xmark close ms-5" @click="closeRegisterModal"></i>      
+      </div>      
+    </div>      
+  </div>  
+  <Footer></Footer>      
+</template>      
+      
+<script>      
+import { useAuthStore } from '@/store/auth';    
+import { ref, onMounted, computed } from 'vue';    
+import Cookies from 'js-cookie';  
+import axios from 'axios';  
+import { ngrokUrl } from '@/store/ngrokConfig';  
+import Card from '@/components/Card.vue';      
+import CardBig from '@/components/CardBig.vue';      
+import CardSmall from '@/components/CardSmall.vue';    
+import CardLatest from '@/components/CardLatest.vue';    
+import imageSrc from '../asset/home/test.jpg';      
+import profilePic from '../asset/home/test.jpg';      
+      
+export default {      
+  components: {      
+    Card,      
+    CardBig,      
+    CardSmall,      
+    CardLatest,  
+  },      
+  setup() {      
+    const authStore = useAuthStore();    
+    const user = ref(null);  
+    const isLoggedIn = computed(() => {    
+      return Cookies.get('isLoggedIn') === 'true';  
+    });    
+    
+    const getUserData = () => {    
+      const userData = Cookies.get('user');    
+      return userData ? JSON.parse(userData) : null;    
+    };    
+  
+    // Format date function  
+    const formatDate = (dateString) => {  
+      const date = new Date(dateString);  
+      return date.toLocaleDateString('en-US', {  
+        day: 'numeric',  
+        month: 'long',  
+        year: 'numeric'  
+      });  
     };  
   
-    onMounted(() => {  
-      user.value = getUserData(); // Ambil data pengguna saat komponen dimuat  
-      authStore.fetchUserData(); // Ambil data pengguna dari store jika diperlukan  
-    });    
-    const showLoginModal = ref(false);    
-    const showRegisterModal = ref(false);    
-    const stories = ref([    
+    const showLoginModal = ref(false);      
+    const showRegisterModal = ref(false);      
+    const stories = ref([]);      
+    const romances = ref([]); // Pastikan ini ada di bagian setup  
+    const comedies = ref([]); // Inisialisasi array komedi  
+
+  
+    // Fetch latest stories  
+    const fetchLatestStories = async () => {  
+      try {  
+        const response = await axios.get(`${ngrokUrl}/api/latest`, {  
+          headers: {  
+            "ngrok-skip-browser-warning": "69420"  
+          }  
+        });  
+        stories.value = response.data.data.data; // Access the nested data array  
+      } catch (error) {  
+        console.error('Error fetching latest stories:', error);  
+      }  
+    };  
+   
+       // Fetch comedy stories  
+   const fetchComedyStories = async () => {  
+     try {  
+       const response = await axios.get(`${ngrokUrl}/api/category/1`, {  
+         headers: {  
+           "ngrok-skip-browser-warning": "69420"  
+         }  
+       });  
+       console.log(response.data); // Log respons API 
+       comedies.value = response.data.data; // Ambil data cerita dari response  
+       console.log("comedy:", comedies.value); // Cek data yang diterima  
+     } catch (error) {  
+       console.error('Error fetching comedy stories:', error);  
+     }  
+   };  
+
+    const fetchRomanceStories = async () => {  
+     try {  
+       const response = await axios.get(`${ngrokUrl}/api/category/2`, {  
+         headers: {  
+           "ngrok-skip-browser-warning": "69420"  
+         }  
+       });  
+       console.log(response.data); // Log respons API  
+       romances.value = response.data.data; // Ambil data cerita dari response  
+       console.log(romances.value); // Cek data yang diterima  
+     } catch (error) {  
+       console.error('Error fetching romance stories:', error);  
+     }  
+   };  
+    
+    const horrors = ref([    
       {    
         image: imageSrc,    
         profilePic: profilePic,    
-        title: 'Gemma',    
-        description: 'GOLDEN Gemma was only five minutes away from her parents\' hut... Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sint perferendis tempora voluptatibus doloremque aut culpa repellat earum eligendi vel? Eum quasi consequuntur magni quidem dignissimos! Voluptates illo voluptatum facilis minus.',    
-        userName: 'User1',    
-        createdAt: '2023-07-17',    
-        category: 'Adventure',    
-      },    
-      {    
-        image: imageSrc,    
-        profilePic: profilePic,    
-        title: 'Harry Potter and the Goblet of Fire',    
-        description: 'Harry Potter and the Goblet of Fire is a fantasy novel written by J.K. Rowling...',    
-        userName: 'User2',    
-        createdAt: '2023-07-17',    
-        category: 'Fantasy',    
-      },    
-      {    
-        image: imageSrc,    
-        profilePic: profilePic,    
-        title: 'Harry Potter and the Chamber of Secrets',    
-        description: 'Harry Potter and the Chamber of Secrets is a fantasy novel written by J.K. Rowling...',    
-        userName: 'User3',    
-        createdAt: '2023-07-17',    
-        category: 'Fantasy',    
-      },    
-      {    
-        image: imageSrc,    
-        profilePic: profilePic,    
-        title: 'The Great Gatsby',    
-        description: 'A novel about the American dream and the roaring twenties.',    
-        userName: 'User4',    
-        createdAt: '2023-07-18',    
-        category: 'Classic',    
-      },    
-      {    
-        image: imageSrc,    
-        profilePic: profilePic,    
-        title: 'To Kill a Mockingbird',    
-        description: 'A novel about racial injustice in the Deep South.',    
-        userName: 'User5',    
-        createdAt: '2023-07-19',    
-        category: 'Classic',    
-      },    
-      {    
-        image: imageSrc,    
-        profilePic: profilePic,    
-        title: '1984',    
-        description: 'A dystopian novel about totalitarianism and surveillance.',    
-        userName: 'User6',    
-        createdAt: '2023-07-20',    
-        category: 'Dystopian',    
+        title: "The Shining",    
+        description: "A chilling tale of isolation and madness.",    
+        userName: "User10",    
+        createdAt: "2023-09-01",    
       },    
     ]);    
     
-    const comedies = ref([    
+    const smallHorrors = ref([    
       {    
         image: imageSrc,    
         profilePic: profilePic,    
-        title: "Guardians of the Galaxy Vol. 3",    
-        description: "At their new headquarters on Knowhere, the Guardians of the Galaxy are attacked by Adam Warlock...Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti ducimus officia ab, debitis eligendi enim incidunt error ipsum quisquam nesciunt nisi, nobis at corporis! Libero quia velit nemo corrupti blanditiis.",    
-        userName: "Juliana Putra",    
-        createdAt: "15 May 2023",    
+        title: "The Haunting of Hill House",    
+        description: "A story about a haunted house and its inhabitants.",    
+        userName: "User11",    
+        createdAt: "2023-09-04",    
+      },    
+      {    
+        image: imageSrc,    
+        profilePic: profilePic,    
+        title: "Bird Box",    
+        description: "A post-apocalyptic thriller about survival.",    
+        userName: "User12",    
+        createdAt: "2023-09-05",  
       },    
     ]);    
     
-    const smallComedies = ref([    
-      {    
-        image: imageSrc,    
-        profilePic: profilePic,    
-        title: "Doctor Strange",    
-        description: "Doctor Strange is Dr. Stephen Strange.",    
-        userName: "Langgam",    
-        createdAt: "11 May 2023", 
-      },    
-      {    
-        image: imageSrc,    
-        profilePic: profilePic,    
-        title: "Si Kancil",    
-        description: "A beloved character in Indonesian folklore with humorous tales.Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti ducimus officia ab, debitis eligendi enim incidunt error ipsum quisquam nesciunt nisi, nobis at corporis! Libero quia velit nemo corrupti blanditiis.",    
-        userName: "Fahaladin",    
-        createdAt: "06 December 2022", 
-      },    
-    ]);    
-  
-    // New data for Romance stories  
-    const romances = ref([  
-      {  
-        image: imageSrc,  
-        profilePic: profilePic,  
-        title: "Love in the Time of Cholera",  
-        description: "A story of love that spans decades.",  
-        userName: "User7",  
-        createdAt: "2023-08-01",  
-      },  
-      {  
-        image: imageSrc,  
-        profilePic: profilePic,  
-        title: "Pride and Prejudice",  
-        description: "A classic tale of love and misunderstanding.",  
-        userName: "User8",  
-        createdAt: "2023-08-02",  
-      },  
-      {  
-        image: imageSrc,  
-        profilePic: profilePic,  
-        title: "The Notebook",  
-        description: "A love story that never fades.",  
-        userName: "User9",  
-        createdAt: "2023-08-03", 
-      },  
-    ]);  
-  
-    // New data for Horror stories  
-    const horrors = ref([  
-      {  
-        image: imageSrc,  
-        profilePic: profilePic,  
-        title: "The Shining",  
-        description: "A chilling tale of isolation and madness.",  
-        userName: "User10",  
-        createdAt: "2023-09-01",  
-      },  
-    ]);  
-  
-    const smallHorrors = ref([  
-      {  
-        image: imageSrc,  
-        profilePic: profilePic,  
-        title: "The Haunting of Hill House",  
-        description: "A story about a haunted house and its inhabitants.",  
-        userName: "User11",  
-        createdAt: "2023-09-04",  
-      },  
-      {  
-        image: imageSrc,  
-        profilePic: profilePic,  
-        title: "Bird Box",  
-        description: "A post-apocalyptic thriller about survival.",  
-        userName: "User12",  
-        createdAt: "2023-09-05",
-      },  
-    ]);  
-  
-    const showSuccessModal = () => {    
-      if (authStore.isLoggedIn) {    
-        showLoginModal.value = true;    
-      } else if (authStore.isRegistered) {    
-        showRegisterModal.value = true;    
-      }    
-    
-      // Optional: Automatically close the modal after 10 seconds    
-      setTimeout(() => {    
-        closeLoginModal();    
-        closeRegisterModal();    
-      }, 10000);    
-    };    
-    
-    onMounted(async () => {    
-      await authStore.fetchUserData(); // Fetch user data on component mount    
-      showSuccessModal();    
-    });    
-    
-    const closeLoginModal = () => {    
-      showLoginModal.value = false;    
-    };    
-    
-    const closeRegisterModal = () => {    
-      showRegisterModal.value = false;    
-    };    
-    
-    return { 
-      user,  
-      isLoggedIn,  
-      authStore, 
-      showLoginModal, 
-      showRegisterModal, 
-      closeLoginModal, 
-      closeRegisterModal, 
-      stories, 
-      comedies, 
-      smallComedies, 
-      romances, 
-      horrors, 
-      smallHorrors };    
-  },    
-  head() {    
-    return {    
-      title: 'Welcome to Storytime',    
-    };    
-  },    
-};    
-</script>    
+    const showSuccessModal = () => {      
+      if (authStore.isLoggedIn) {      
+        showLoginModal.value = true;      
+      } else if (authStore.isRegistered) {      
+        showRegisterModal.value = true;      
+      }      
+      
+      setTimeout(() => {      
+        closeLoginModal();      
+        closeRegisterModal();      
+      }, 10000);      
+    };      
+      
+    onMounted(async () => {  
+     user.value = getUserData();  
+     await authStore.fetchUserData();  
+     await fetchLatestStories();  
+     await fetchRomanceStories(); // Ambil cerita romansa  
+     await fetchComedyStories(); // Ambil cerita komedi  
+     showSuccessModal();      
+   });  
+
+     
+      
+    const closeLoginModal = () => {      
+      showLoginModal.value = false;      
+    };      
+      
+    const closeRegisterModal = () => {      
+      showRegisterModal.value = false;      
+    };      
+      
+    return {   
+      user,    
+      isLoggedIn,    
+      authStore,   
+      showLoginModal,   
+      showRegisterModal,   
+      closeLoginModal,   
+      closeRegisterModal,   
+      stories,   
+      comedies,     
+      romances,   
+      horrors,   
+      smallHorrors,  
+      formatDate,  
+      ngrokUrl  
+    };      
+  },      
+  head() {      
+    return {      
+      title: 'Welcome to Storytime',      
+    };      
+  },      
+};      
+</script>   
+   
     
 <style scoped>
 .fontPlayfair {

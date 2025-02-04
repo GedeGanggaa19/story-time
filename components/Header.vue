@@ -89,7 +89,7 @@ export default {
     const logout = async () => {  
       const token = Cookies.get('authToken'); // Get token from cookies  
       if (token) {  
-        await fetch('https://0f41-103-100-175-121.ngrok-free.app/api/logout', {  
+        await fetch('https://06b1-103-100-175-121.ngrok-free.app/api/logout', {  
           method: 'POST',  
           headers: {  
             'Authorization': `Bearer ${token}`,  
@@ -121,7 +121,7 @@ export default {
       openLogoutModal,  
       closeLogoutModal,  
       isLoggedIn, // Return the computed property for login status  
-    }; // Return user data, logout method, and default image for use in template  
+    };   
   },  
 };  
 </script>  

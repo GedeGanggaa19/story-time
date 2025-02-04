@@ -204,8 +204,7 @@ export default {
         }    
     
         await userFetchData(); // Refresh user data setelah update    
-        closeModal();    
-        location.reload(); // Tambahkan ini untuk refresh halaman    
+        closeModal();     
       } catch (error) {    
         console.error('Error updating profile:', error);    
       }    
@@ -242,7 +241,7 @@ export default {
   },    
 };    
 </script>    
-    
+      
 <style scoped>    
 .profile-header {    
   padding: 100px 150px;    
@@ -397,6 +396,10 @@ export default {
   background-color: #364934;    
 }    
     
+.btn-write-story:active {    
+  color: white;  
+} 
+
 .bookmark-section {     
   padding: 20px;    
   background-color: #f9f9f9;    

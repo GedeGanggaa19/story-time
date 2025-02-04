@@ -68,12 +68,12 @@ export default {
   font-family: dm-sans, sans-serif;    
 }    
     
-.card-image {        
-  border-radius: 15px; /* Mengatur border radius untuk gambar */        
-  width: 100%; /* Membuat gambar responsif */        
-  height: auto; /* Mempertahankan rasio aspek */        
-  transition: transform 0.3s ease, opacity 0.3s ease; /* Menambahkan transisi untuk transformasi dan opacity */    
-}        
+.card-image {      
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;      
+}      
     
 .card {        
   border: none; /* Menghilangkan border pada card */             
@@ -123,25 +123,34 @@ export default {
   margin-right: 10px; /* Jarak antara gambar dan nama */        
 }        
     
-.image-container {        
-  position: relative; /* Membuat elemen bookmark bisa diposisikan relatif terhadap gambar */        
-}        
+.image-container {      
+  position: relative;   
+  width: 100%;
+  height: 700px; /* Fixed height */
+  overflow: hidden;
+  border-radius: 10px;   
+}    
           
 .bookmark-icon {      
   position: absolute;      
   bottom: 40px;       
   right: 40px;       
-  width: 10%;      
-  height: 10%;      
+  width: 80px;      
+  height: 80px;      
   background-color: #466543;      
   display: flex;      
   justify-content: center;      
   align-items: center;      
   cursor: pointer;      
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);     
-  border-radius: 50%;     
+  border-radius: 50%; 
+  transition: transform 0.3s ease; 
 }      
-      
+    
+.card:hover .bookmark-icon {    
+  transform: translateY(-5px);  
+}
+
 .bookmark-icon::after {      
   content: '';       
   width: 45%; /* Adjust size */      

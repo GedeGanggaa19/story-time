@@ -71,10 +71,18 @@ export default {
   font-family: dm-sans, sans-serif;    
 }    
       
+.image-container {      
+  position: relative;   
+  width: 100%;
+  height: 400px; /* Fixed height */
+  overflow: hidden;
+  border-radius: 10px;   
+}      
+
 .card-image {      
-  border-radius: 10px;      
-  width: 100%;      
-  height: auto;      
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   transition: opacity 0.3s ease;      
 }      
           
@@ -84,15 +92,15 @@ export default {
   margin-right: 15px;         
   margin-bottom: 20px;       
   text-align: left;      
-  transition: background-color 0.3s ease; /* Optional: smooth background transition */  
+  transition: background-color 0.3s ease;
 }       
           
-.card:hover { /* Change the title color on card hover */  
-  background-color: rgba(255, 255, 255, 0.9); /* Optional: change background on hover */  
+.card:hover { 
+  background-color: rgba(255, 255, 255, 0.9);
 }  
   
-.card:hover .card-title { /* Change title color on card hover */  
-  color: #466543; /* Change title color to #466543 */  
+.card:hover .card-title {
+  color: #466543;
 }  
   
 .card:hover .card-image {        
@@ -103,31 +111,32 @@ export default {
   padding-left: 0;      
   padding-right: 0;     
   font-size: 24px;     
-  color: #222222; /* Default title color */  
+  color: #222222;
 }      
         
 .description {      
-  display: -webkit-box; /* Untuk mendukung WebKit */      
-  -webkit-box-orient: vertical; /* Mengatur orientasi kotak */      
-  -webkit-line-clamp: 3; /* Membatasi jumlah baris menjadi 3 */      
-  overflow: hidden; /* Menyembunyikan teks yang melampaui batas */      
-  text-overflow: ellipsis; /* Menambahkan titik-titik */      
-  line-height: 1.5; /* Mengatur tinggi baris untuk estetika */      
-  max-height: 4.5em; /* Mengatur tinggi maksimum untuk 3 baris */
+  display: -webkit-box;     
+  -webkit-box-orient: vertical;    
+  -webkit-line-clamp: 3;     
+  overflow: hidden;     
+  text-overflow: ellipsis;     
+  line-height: 1.5;     
+  max-height: 4.5em;
   font-size: 15px;      
 }     
           
 .footer-card {      
   display: flex;      
   align-items: center;      
-  font-size: 15px;      
+  font-size: 15px;     
 }      
           
 .profile-pic {      
   width: 40px;      
   height: 40px;      
   border-radius: 50%;      
-  margin-right: 10px;      
+  margin-right: 10px;
+  object-fit: cover;      
 }      
           
 .category {      
@@ -137,17 +146,13 @@ export default {
   border-radius: 5px;      
   text-align: left;      
 }      
-          
-.image-container {      
-  position: relative;      
-}      
         
 .bookmark-icon {      
   position: absolute;      
   bottom: 20px;       
   right: 20px;       
-  width: 15%;      
-  height: 15%;      
+  width: 60px;      
+  height: 60px;      
   background-color: #466543;      
   display: flex;      
   justify-content: center;      
@@ -155,17 +160,17 @@ export default {
   cursor: pointer;      
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);     
   border-radius: 50%;     
-  transition: transform 0.3s ease; /* Transisi untuk efek hover pada bookmark */    
+  transition: transform 0.3s ease;   
 }      
           
 .card:hover .bookmark-icon {    
-  transform: translateY(-5px); /* Menggerakkan bookmark sedikit ke atas saat di-hover */    
+  transform: translateY(-5px);    
 }    
       
 .bookmark-icon::after {      
   content: '';       
-  width: 55%; /* Adjust size */      
-  height: 55%; /* Adjust size */     
+  width: 55%;     
+  height: 55%;    
   background-image: url('../asset/icon/iconBookmark.png');     
   background-size: cover;     
 }      
@@ -173,4 +178,4 @@ export default {
 .bottom-card {      
   width: 100%;      
 }      
-</style>      
+</style>

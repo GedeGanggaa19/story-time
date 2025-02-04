@@ -141,9 +141,14 @@ export default {
   align-items: center;      
   cursor: pointer;      
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);       
-  border-radius: 50%;     
+  border-radius: 50%;  
+  transition: transform 0.3s ease; 
 }      
     
+.card:hover .bookmark-icon {    
+  transform: translateY(-5px);    
+}
+
 .bookmark-icon::after {      
   content: '';       
   width: 55%; /* Adjust size */      

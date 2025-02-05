@@ -29,18 +29,18 @@
         <hr>      
       </div>      
       <div class="stories-grid">      
-    <CardLatest      
-      v-for="story in stories"      
-      :key="story.id"      
-      :imageSrc="`${ngrokUrl}/storage/${story.content_images[0].path}`"      
-      :profilePic="`${ngrokUrl}/storage/${story.user.image}`"      
-      :title="story.title"      
-      :description="story.content"      
-      :userName="story.user.username"      
-      :createdAt="formatDate(story.created_at)"      
-      :category="story.category.name"      
-    />      
-  </div>       
+        `<CardLatest      
+          v-for="story in stories"      
+          :key="story.id"      
+          :imageSrc="`${ngrokUrl}/storage/${story.content_images[0].path}`"      
+          :profilePic="`${ngrokUrl}/storage/${story.user.image}`"      
+          :title="story.title"      
+          :description="story.content"      
+          :userName="story.user.username"      
+          :createdAt="formatDate(story.created_at)"      
+          :category="story.category.name"      
+        />      
+      </div>      ` 
     </div>      
     
     <!-- Comedy Section -->      
@@ -58,30 +58,30 @@
       <div class="row">      
         <div class="col-lg-8 col-md-6">      
           <CardBig      
-           v-for="(comedy, index) in comedies.slice(0, 1)" 
-           :key="index"      
-           :imageSrc="`${ngrokUrl}/storage/${comedy.content_images[0].path}`"      
-           :profilePic="`${ngrokUrl}/storage/${comedy.user.image}`"      
-           :title="comedy.title"      
-           :description="comedy.content"      
-           :userName="comedy.user.username"      
-           :createdAt="formatDate(comedy.created_at)"      
-           :category="comedy.category"      
-         />      
-       </div>      
-       <div class="col-lg-4 col-md-6">      
-         <div class="d-flex flex-column">      
-           <CardSmall      
-             v-for="(comedy, index) in comedies.slice(1, 3)" 
-             :key="index"      
-             :imageSrc="`${ngrokUrl}/storage/${comedy.content_images[0].path}`"      
-             :profilePic="`${ngrokUrl}/storage/${comedy.user.image}`"      
-             :title="comedy.title"      
-             :description="comedy.content"      
-             :userName="comedy.user.username"      
-             :createdAt="formatDate(comedy.created_at)"      
-             :category="comedy.category"      
-           />      
+          v-for="(comedy, index) in comedies.slice(0, 1)" 
+          :key="index"      
+          :imageSrc="`${ngrokUrl}/storage/${comedy.content_images[0].path}`"      
+          :profilePic="`${ngrokUrl}/storage/${comedy.user.image}`"      
+          :title="comedy.title"      
+          :description="comedy.content"      
+          :userName="comedy.user.username"      
+          :createdAt="formatDate(comedy.created_at)"      
+          :category="comedy.category"      
+        />      
+      </div>      
+      <div class="col-lg-4 col-md-6">      
+        <div class="d-flex flex-column">      
+          <CardSmall      
+            v-for="(comedy, index) in comedies.slice(1, 3)" 
+            :key="index"      
+            :imageSrc="`${ngrokUrl}/storage/${comedy.content_images[0].path}`"      
+            :profilePic="`${ngrokUrl}/storage/${comedy.user.image}`"      
+            :title="comedy.title"      
+            :description="comedy.content"      
+            :userName="comedy.user.username"      
+            :createdAt="formatDate(comedy.created_at)"      
+            :category="comedy.category"      
+          />      
           </div>      
         </div>      
       </div>      
@@ -130,27 +130,27 @@
           <CardBig      
             v-for="(horror, index) in horrors.slice(0, 1)"      
             :key="index"      
-            :imageSrc="horror.image"      
-            :profilePic="horror.profilePic"      
+            :imageSrc="`${ngrokUrl}/storage/${horror.content_images[0].path}`"      
+            :profilePic="`${ngrokUrl}/storage/${horror.user.image}`"      
             :title="horror.title"      
-            :description="horror.description"      
-            :userName="horror.userName"      
-            :createdAt="horror.createdAt"      
+            :description="horror.content"      
+            :userName="horror.user.username"      
+            :createdAt="formatDate(horror.created_at)"      
             :category="horror.category"      
           />      
         </div>      
         <div class="col-lg-4 col-md-6">      
-          <div class="d-flex flex-column card-small">      
+          <div class="d-flex flex-column">      
             <CardSmall      
-              v-for="(smallHorror, index) in smallHorrors"      
+              v-for="(horror, index) in horrors.slice(1, 3)"      
               :key="index"      
-              :imageSrc="smallHorror.image"      
-              :profilePic="smallHorror.profilePic"      
-              :title="smallHorror.title"      
-              :description="smallHorror.description"      
-              :userName="smallHorror.userName"      
-              :createdAt="smallHorror.createdAt"      
-              :category="smallHorror.category"      
+              :imageSrc="`${ngrokUrl}/storage/${horror.content_images[0].path}`"      
+              :profilePic="`${ngrokUrl}/storage/${horror.user.image}`"      
+              :title="horror.title"      
+              :description="horror.content"      
+              :userName="horror.user.username"      
+              :createdAt="formatDate(horror.created_at)"      
+              :category="horror.category"      
             />      
           </div>      
         </div>      
@@ -241,6 +241,7 @@ export default {
     const stories = ref([]);      
     const romances = ref([]); // Pastikan ini ada di bagian setup  
     const comedies = ref([]); // Inisialisasi array komedi  
+    const horrors = ref([]); // Inisialisasi array horror
 
   
     // Fetch latest stories  
@@ -287,36 +288,21 @@ export default {
        console.error('Error fetching romance stories:', error);  
      }  
    };  
-    
-    const horrors = ref([    
-      {    
-        image: imageSrc,    
-        profilePic: profilePic,    
-        title: "The Shining",    
-        description: "A chilling tale of isolation and madness.",    
-        userName: "User10",    
-        createdAt: "2023-09-01",    
-      },    
-    ]);    
-    
-    const smallHorrors = ref([    
-      {    
-        image: imageSrc,    
-        profilePic: profilePic,    
-        title: "The Haunting of Hill House",    
-        description: "A story about a haunted house and its inhabitants.",    
-        userName: "User11",    
-        createdAt: "2023-09-04",    
-      },    
-      {    
-        image: imageSrc,    
-        profilePic: profilePic,    
-        title: "Bird Box",    
-        description: "A post-apocalyptic thriller about survival.",    
-        userName: "User12",    
-        createdAt: "2023-09-05",  
-      },    
-    ]);    
+
+   const fetchHorrorStories = async () => {  
+     try {  
+       const response = await axios.get(`${ngrokUrl}/api/category/3`, {  
+         headers: {  
+           "ngrok-skip-browser-warning": "69420"  
+         }  
+       });  
+       console.log(response.data); // Log respons API 
+       horrors.value = response.data.data; // Ambil data cerita dari response  
+       console.log("horror:", horrors.value); // Cek data yang diterima  
+     } catch (error) {  
+       console.error('Error fetching horror stories:', error);  
+     }  
+   };  
     
     const showSuccessModal = () => {      
       if (authStore.isLoggedIn) {      
@@ -337,6 +323,7 @@ export default {
      await fetchLatestStories();  
      await fetchRomanceStories(); // Ambil cerita romansa  
      await fetchComedyStories(); // Ambil cerita komedi  
+     await fetchHorrorStories(); // Ambil cerita horor
      showSuccessModal();      
    });  
 
@@ -362,7 +349,6 @@ export default {
       comedies,     
       romances,   
       horrors,   
-      smallHorrors,  
       formatDate,  
       ngrokUrl  
     };      

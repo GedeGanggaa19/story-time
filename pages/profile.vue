@@ -15,49 +15,6 @@
       </div>
     </div>
 
-    <!-- Navigation for My Story and Bookmark -->
-    <div class="nav-tabs container my-5">
-      <button @click="showMyStory" class="tab-button" :class="{ active: isMyStory }">My Story</button>
-      <button @click="showBookmark" class="tab-button" :class="{ active: !isMyStory }">Bookmark</button>
-    </div>
-
-    <div class="d-flex container">
-      <div class="write-story col-md-4 me-5">
-        <h3 class="mb-3">Write your story</h3>
-        <p>Share your unique voice with the world – start writing your story today!</p>
-        <nuxt-link to="/addStory" class="btn btn-write-story mt-3">Write Story</nuxt-link>
-      </div>
-
-      <div v-if="isMyStory" class="col-md-8">
-        <div v-if="stories.length > 0" class="stories-grid">
-          <CardUser v-for="story in stories" :key="story.id"
-            :imageSrc="`https://17fa-103-100-175-121.ngrok-free.app/storage/${story.content_images[0].path}`"
-            :profilePic="`https://17fa-103-100-175-121.ngrok-free.app/storage/${story.user.image}`" 
-            :title="story.title" 
-            :description="story.content"
-            :userName="story.user.username" 
-            :createdAt="formatDate(story.created_at)" />
-        </div>
-        <div v-else class="story-section text-center">
-          <h2>No Stories Yet</h2>
-          <p>You haven't shared any stories yet. Start your fitness journey today!</p>
-          <div class="illustration">
-            <img src="@/asset/profile/story.png" alt="Illustration" class="img-fluid" />
-          </div>
-        </div>
-      </div>
-
-      <div v-else class="col-md-8">
-        <div class="bookmark-section text-center">
-          <h2>No Bookmarks Yet</h2>
-          <p>You haven't saved any bookmarks yet. Explore and bookmark your top workouts!</p>
-          <div class="illustration">
-            <img src="@/asset/profile/bookmark.png" alt="Bookmark Illustration" class="img-fluid" />
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div v-if="isModalOpen" class="modal-overlay">
       <div class="modal-content">
         <div class="d-flex align-items-center justify-content-between">
@@ -109,6 +66,65 @@
     </div>
 
     <input type="file" ref="fileInput" @change="onFileChange" style="display: none;" />
+
+    <!-- Navigation for My Story and Bookmark -->
+    <div class="nav-tabs container my-5">
+      <button @click="showMyStory" class="tab-button" :class="{ active: isMyStory }">My Story</button>
+      <button @click="showBookmark" class="tab-button" :class="{ active: !isMyStory }">Bookmark</button>
+    </div>
+
+    <div class="d-flex container">
+      <div class="write-story col-md-4 me-5">
+        <h3 class="mb-3">Write your story</h3>
+        <p>Share your unique voice with the world – start writing your story today!</p>
+        <nuxt-link to="/addStory" class="btn btn-write-story mt-3">Write Story</nuxt-link>
+      </div>
+
+      <div v-if="isMyStory" class="col-md-8">
+        <div v-if="stories.length > 0" class="stories-grid">
+          <CardUser v-for="story in paginatedStories" :key="story.id"
+            :imageSrc="`https://41c9-103-100-175-121.ngrok-free.app/storage/${story.content_images[0].path}`"
+            :profilePic="`https://41c9-103-100-175-121.ngrok-free.app/storage/${story.user.image}`" 
+            :title="story.title" 
+            :description="story.content"
+            :userName="story.user.username" 
+            :createdAt="formatDate(story.created_at)" />
+        </div>
+        <div v-else class="story-section text-center">
+          <h2>No Stories Yet</h2>
+          <p>You haven't shared any stories yet. Start your fitness journey today!</p>
+          <div class="illustration">
+            <img src="@/asset/profile/story.png" alt="Illustration" class="img-fluid" />
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="col-md-8">
+        <div class="bookmark-section text-center">
+          <h2>No Bookmarks Yet</h2>
+          <p>You haven't saved any bookmarks yet. Explore and bookmark your top workouts!</p>
+          <div class="illustration">
+            <img src="@/asset/profile/bookmark.png" alt="Bookmark Illustration" class="img-fluid" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Navigation for My Story and Bookmark -->
+
+    <!-- Pagination -->
+    <div v-if="stories.length > 0" class="pagination py-5 my-5">
+      <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+      <span v-for="page in totalPages" :key="page">
+        <button
+          v-if="page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)"
+          @click="currentPage = page"
+          :class="{ active: currentPage === page }">
+          {{ page }}
+        </button>
+        <span v-if="page === currentPage + 2">...</span>
+      </span>
+      <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+    </div>
   </div>
 </template>
 
@@ -140,12 +156,22 @@ export default {
       confirmPassword: '',
       image: null,
     });
+    const currentPage = ref(1);
+    const storiesPerPage = 4;
 
     const imagePreview = computed(() => {
       if (formData.value.image && formData.value.image instanceof File) {
         return URL.createObjectURL(formData.value.image);
       }
       return user.value.image || defaultImage;
+    });
+
+    const totalPages = computed(() => Math.ceil(stories.value.length / storiesPerPage));
+
+    const paginatedStories = computed(() => {
+      const start = (currentPage.value - 1) * storiesPerPage;
+      const end = start + storiesPerPage;
+      return stories.value.slice(start, end);
     });
 
     const userFetchData = async () => {
@@ -168,51 +194,44 @@ export default {
     };
 
     const fetchUserStories = async () => {
-  try {
-    // Retrieve the token from cookies
-    const token = Cookies.get('authToken');
+      try {
+        const token = Cookies.get('authToken');
 
-    if (!token) {
-      throw new Error('Authorization token not found');
-    }
+        if (!token) {
+          throw new Error('Authorization token not found');
+        }
 
-    // Add the token to the axios request headers
-    const response = await axios.get(`${ngrokUrl}/api/stories/my-stories`, {
-      headers: {
-        "ngrok-skip-browser-warning": "69420",
-        "Authorization": `Bearer ${token}`
+        const response = await axios.get(`${ngrokUrl}/api/stories/my-stories`, {
+          headers: {
+            "ngrok-skip-browser-warning": "69420",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        const apiStories = response.data.data;
+        const userInfo = response.data.user;
+
+        stories.value = apiStories.map(story => ({
+          id: story.id,
+          title: story.title,
+          content: story.content,
+          created_at: story.created_at,
+          content_images: story.content_images,
+          user: {
+            id: userInfo.id,
+            name: userInfo.name,
+            username: userInfo.username,
+            email: userInfo.email,
+            image: userInfo.image,
+            about: userInfo.about,
+          }
+        }));
+
+        console.log('User Stories:', stories.value);
+      } catch (error) {
+        console.error('Error fetching user stories:', error);
       }
-    });
-
-    // Extracting stories from the response
-    const apiStories = response.data.data;
-    const userInfo = response.data.user;
-
-    // Map the API response to the stories array
-    stories.value = apiStories.map(story => ({
-      id: story.id,
-      title: story.title,
-      content: story.content,
-      created_at: story.created_at,
-      content_images: story.content_images,
-      user: {
-        id: userInfo.id,
-        name: userInfo.name,
-        username: userInfo.username,
-        email: userInfo.email,
-        image: userInfo.image,
-        about: userInfo.about,
-      }
-    }));
-
-    console.log('User Stories:', stories.value); // Cek data yang diterima
-  } catch (error) {
-    console.error('Error fetching user stories:', error);
-  }
-};
-
-
-
+    };
 
     const formatDate = (dateString) => {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -284,6 +303,18 @@ export default {
       isMyStory.value = false;
     };
 
+    const nextPage = () => {
+      if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+      }
+    };
+
+    const prevPage = () => {
+      if (currentPage.value > 1) {
+        currentPage.value--;
+      }
+    };
+
     return {
       user,
       isModalOpen,
@@ -299,7 +330,12 @@ export default {
       showMyStory,
       showBookmark,
       isMyStory,
-      formatDate, // Mengembalikan fungsi formatDate untuk digunakan di template
+      formatDate,
+      paginatedStories,
+      totalPages,
+      currentPage,
+      nextPage,
+      prevPage,
     };
   },
 };
@@ -357,9 +393,7 @@ export default {
   display: flex;
   justify-content: start;
   padding: 0;
-  /* Ensure no padding is causing the line */
   border: none;
-  /* Remove any border if present */
 }
 
 .tab-button {
@@ -472,5 +506,53 @@ export default {
 
 .illustration {
   margin-top: 20px;
+}
+
+.stories-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 600px) {
+  .stories-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pagination {
+  display: flex;
+  margin-top: 20px;
+  margin-left: 860px;
+}
+
+.pagination button:hover {
+  background-color: #31472f;
+  color: white;
+  transition: all 0.3s ease-in-out;
+}
+
+.pagination button {
+  padding: 15px 25px;
+  margin: 0 5px;
+  border: none;
+  background-color: #f0f5ed;
+  color: black;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.pagination button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.pagination button.active {
+  background-color: #31472f;
+  color: white;
 }
 </style>

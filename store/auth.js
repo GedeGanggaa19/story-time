@@ -201,6 +201,6 @@ export const useAuthStore = defineStore('auth', {
       } catch (err) {      
           console.error(err.response?.data?.error || 'Image update failed');      
       }      
-    }      
+    },
   },    
 });  

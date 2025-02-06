@@ -89,7 +89,7 @@ export default {
     const logout = async () => {  
       const token = Cookies.get('authToken'); // Get token from cookies  
       if (token) {  
-        await fetch('https://17fa-103-100-175-121.ngrok-free.app/api/logout', {  
+        await fetch('https://41c9-103-100-175-121.ngrok-free.app/api/logout', {  
           method: 'POST',  
           headers: {  
             'Authorization': `Bearer ${token}`,  

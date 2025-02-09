@@ -3,7 +3,7 @@
       <div class="card fontDmSans">        
         <div class="image-container">        
           <img :src="imageSrc" class="card-img-top card-image" alt="..." />        
-          <div class="update-icon"></div>        
+          <nuxt-link to="/updatestory" class="update-icon"></nuxt-link>        
           <div class="bookmark-icon"></div>        
           <div class="trash-icon"></div>        
         </div>        

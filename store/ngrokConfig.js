@@ -1,2 +1,2 @@
 // ngrokConfig.js  
-export const ngrokUrl = 'https://41c9-103-100-175-121.ngrok-free.app';  
+export const ngrokUrl = 'https://0fac-103-190-47-10.ngrok-free.app';  

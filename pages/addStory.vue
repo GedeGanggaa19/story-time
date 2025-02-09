@@ -15,9 +15,11 @@
 
       <div class="form-category my-5">
         <label for="category">Category</label>
-        <select v-model="category" id="category" required>
-          <option value="" disabled>Select Category</option>
-          <option v-for="cat in categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
+        <select v-model="selectedCategory" id="category" required>
+          <option value="" disabled selected>Select Category</option>
+          <option v-for="category in categories" :key="category.id" :value="category.id">
+            {{ category.name }}
+          </option>
         </select>
       </div>
 
@@ -31,16 +33,33 @@
               <option value="h2">Heading 2</option>
               <option value="h3">Heading 3</option>
             </select>
-            <button type="button" @click="format('bold')" title="Bold"><i class="fa-solid fa-bold ms-3 me-3"></i></button>
-            <button type="button" @click="format('italic')" title="Italic"><i class="fa-solid fa-italic me-3"></i></button>
-            <button type="button" @click="format('underline')" title="Underline"><i class="fa-solid fa-underline me-3"></i></button>
-            <button type="button" @click="promptForLink" title="Link"><i class="fa-solid fa-link me-3"></i></button>
-            <button type="button" @click="format('insertOrderedList')" title="Ordered List"><i class="fa-solid fa-list-ol me-3"></i></button>
-            <button type="button" @click="format('insertUnorderedList')" title="Unordered List"><i class="fa-solid fa-list-ul"></i></button>
-            <button type="button" @click="undo" title="Undo"><i class="fa-solid fa-undo ms-3 me-3"></i></button>
-            <button type="button" @click="redo" title="Redo"><i class="fa-solid fa-redo me-3"></i></button>
+            <button type="button" @click="format('bold')" title="Bold">
+              <i class="fa-solid fa-bold ms-3 me-3"></i>
+            </button>
+            <button type="button" @click="format('italic')" title="Italic">
+              <i class="fa-solid fa-italic me-3"></i>
+            </button>
+            <button type="button" @click="format('underline')" title="Underline">
+              <i class="fa-solid fa-underline me-3"></i>
+            </button>
+            <button type="button" @click="promptForLink" title="Link">
+              <i class="fa-solid fa-link me-3"></i>
+            </button>
+            <button type="button" @click="format('insertOrderedList')" title="Ordered List">
+              <i class="fa-solid fa-list-ol me-3"></i>
+            </button>
+            <button type="button" @click="format('insertUnorderedList')" title="Unordered List">
+              <i class="fa-solid fa-list-ul"></i>
+            </button>
+            <button type="button" @click="undo" title="Undo">
+              <i class="fa-solid fa-undo ms-3 me-3"></i>
+            </button>
+            <button type="button" @click="redo" title="Redo">
+              <i class="fa-solid fa-redo me-3"></i>
+            </button>
           </div>
-          <div class="textarea-wrapper" contenteditable="true" id="content" @input="updateContent($event)" placeholder="Enter content here"></div>
+          <div class="textarea-wrapper" contenteditable="true" id="content" @input="updateContent($event)"
+            placeholder="Enter content here"></div>
         </div>
       </div>
 
@@ -48,27 +67,16 @@
         <label for="coverImage">Cover Images</label>
         <div class="upload-container">
           <div class="upload-box" @click="triggerFileInput">
-            <input
-              type="file"
-              accept="image/*"
-              class="upload-input"
-              @change="onFilesChange"
-              ref="fileInput"
-              multiple
-            />
-            <div v-if="!coverImages.length" class="upload-content">
+            <input type="file" accept="image/*" class="upload-input" @change="onFilesChange" ref="fileInput" multiple />
+            <div v-if="!content_images.length" class="upload-content">
               <div class="upload-icon">
                 <i class="fa-solid fa-image"></i>
               </div>
               <span class="upload-text">Choose images</span>
             </div>
             <div v-else class="preview-grid">
-              <div v-for="(file, index) in coverImages" :key="index" class="preview-item">
-                <img
-                  :src="imagePreviews[index]"
-                  :alt="file.name"
-                  class="preview-image"
-                />
+              <div v-for="(file, index) in content_images" :key="index" class="preview-item">
+                <img :src="imagePreviews[index]" :alt="file.name" class="preview-image" />
                 <div class="preview-overlay">
                   <span class="file-name">{{ file.name }}</span>
                   <button class="remove-btn" @click.stop="removeImage(index)">
@@ -96,65 +104,136 @@
 
 <script>
 import { useAuthStore } from '../store/auth';
+import Cookies from 'js-cookie';
 
 export default {
   data() {
     return {
       title: '',
-      category: '',
       content: '',
-      coverImages: [],
+      content_images: [],
       imagePreviews: [],
       categories: [],
-      history: [], // Menyimpan riwayat konten
-      historyIndex: -1, // Menyimpan indeks riwayat saat ini
+      selectedCategory: '',
+      history: [],
+      historyIndex: -1,
     };
   },
   methods: {
+    async submitStory() {
+      try {
+        // Validate form data
+        if (!this.title || !this.selectedCategory || !this.content) {
+          alert('Please fill in all required fields');
+          return;
+        }
+
+        const authStore = useAuthStore();
+        const formData = new FormData();
+        const token = Cookies.get('authToken');
+
+        formData.append('title', this.title);
+        formData.append('category_id', this.selectedCategory);
+        formData.append('content', this.content);
+
+        // Append each image file
+        this.content_images.forEach((file, index) => {
+          formData.append(`content_images[${index}]`, file);
+        });
+
+        console.log('Submitting data:', {
+          title: this.title,
+          category_id: this.selectedCategory,
+          content: this.content,
+          content_images: this.content_images
+        });
+
+        const response = await fetch('https://0fac-103-190-47-10.ngrok-free.app/api/stories', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'ngrok-skip-browser-warning': '69420',
+          },
+          body: formData
+        });
+
+        // Log response details for debugging
+        console.log('Response status:', response.status);
+        console.log('response tOKEN', authStore.token);
+        const responseText = await response.text();
+        console.log('Response text:', responseText);
+
+        if (!response.ok) {
+          try {
+            const errorData = JSON.parse(responseText);
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          } catch (e) {
+            throw new Error(`Server error (${response.status}): ${responseText.substring(0, 100)}...`);
+          }
+        }
+
+        let result;
+        try {
+          result = JSON.parse(responseText);
+        } catch (e) {
+          throw new Error('Invalid JSON response from server');
+        }
+
+        console.log('Story created successfully:', result);
+
+        // Reset form after success
+        this.cancel();
+
+        // Show success message
+        alert('Story has been created successfully!');
+
+        // Redirect to profile page
+        this.$router.push('/profile');
+      } catch (error) {
+        console.error('Error creating story:', error);
+        alert(`Failed to create story: ${error.message}`);
+      }
+    },
+
     triggerFileInput() {
       this.$refs.fileInput.click();
     },
+
     onFilesChange(event) {
       const files = Array.from(event.target.files);
-      
       files.forEach(file => {
-        const isDuplicate = this.coverImages.some(f => f.name === file.name);
-        if (!isDuplicate && this.coverImages.length < 5) {
-          this.coverImages.push(file);
+        const isDuplicate = this.content_images.some(f => f.name === file.name);
+        if (!isDuplicate && this.content_images.length < 5) {
+          this.content_images.push(file);
           this.imagePreviews.push(URL.createObjectURL(file));
         }
       });
-
       event.target.value = '';
     },
+
     removeImage(index) {
       URL.revokeObjectURL(this.imagePreviews[index]);
-      this.coverImages.splice(index, 1);
+      this.content_images.splice(index, 1);
       this.imagePreviews.splice(index, 1);
     },
-    submitStory() {
-      const storyData = {
-        title: this.title,
-        category: this.category,
-        content: this.content,
-        coverImages: this.coverImages,
-      };
-      console.log('Story submitted:', storyData);
-    },
+
     cancel() {
       this.title = '';
-      this.category = '';
+      this.selectedCategory = ''; // Changed from category to selectedCategory
       this.content = '';
-      this.coverImages = [];
+      this.content_images = [];
       this.imagePreviews.forEach(url => URL.revokeObjectURL(url));
       this.imagePreviews = [];
       this.history = [];
       this.historyIndex = -1;
     },
+
     format(command, value) {
       document.execCommand(command, false, value);
       this.updateContent({ target: document.getElementById('content') });
     },
+
     updateContent(event) {
       const newContent = event.target.innerHTML;
       if (this.historyIndex === this.history.length - 1) {
@@ -166,12 +245,14 @@ export default {
       this.historyIndex++;
       this.content = newContent;
     },
+
     promptForLink() {
       const url = prompt('Enter URL:');
       if (url) {
         this.format('createLink', url);
       }
     },
+
     undo() {
       if (this.historyIndex > 0) {
         this.historyIndex--;
@@ -179,6 +260,7 @@ export default {
         document.getElementById('content').innerHTML = this.content;
       }
     },
+
     redo() {
       if (this.historyIndex < this.history.length - 1) {
         this.historyIndex++;
@@ -186,41 +268,42 @@ export default {
         document.getElementById('content').innerHTML = this.content;
       }
     },
-    fetchCategories() {
-  const authStore = useAuthStore(); // Access the auth store
-  const token = authStore.token; // Assuming the token is stored in the auth store
 
-  fetch('https://41c9-103-100-175-121.ngrok-free.app/api/categories', {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`, // Include the token in the headers
-      'Content-Type': 'application/json', // Set the content type
-    },
-  })
-  .then(response => {
-    console.log('Response:', response); // Log the response for debugging
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
+    async fetchCategories() {
+      try {
+        const authStore = useAuthStore();
+        const response = await fetch('https://7c66-140-213-150-174.ngrok-free.app/api/categories', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': '69420',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        this.categories = data.data;
+        console.log('Categories loaded:', this.categories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        alert('Failed to load categories. Please refresh the page.');
+      }
     }
-    return response.json();
-  })
-  .then(data => {
-    this.categories = data;
-  })
-  .catch(error => {
-    console.error('Error fetching categories:', error);
-  });
-},
   },
+
   mounted() {
     this.fetchCategories();
   },
+
   beforeUnmount() {
     this.imagePreviews.forEach(url => URL.revokeObjectURL(url));
   },
 };
 </script>
-
 
 <style scoped>
 /* Existing styles */

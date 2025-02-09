@@ -11,7 +11,9 @@
         <p class="profile-about">{{ user.about }}</p>
       </div>
       <div class="col-md-2 d-flex align-items-center">
-        <button @click="openModal" class="btn btn-profile ms-3">Edit Profile</button>
+        <button @click="openModal" class="btn btn-profile ms-3">
+          Edit Profile
+        </button>
       </div>
     </div>
 
@@ -27,7 +29,9 @@
               <div class="profile-image mt-3">
                 <img :src="imagePreview" alt="Profile Image" class="img-fluid" />
               </div>
-              <button @click="selectFile" class="btn btn-change">Change Picture</button>
+              <button @click="selectFile" class="btn btn-change">
+                Change Picture
+              </button>
             </div>
 
             <div class="name-section mt-3">
@@ -59,40 +63,53 @@
         </div>
 
         <div class="button mt-3">
-          <button @click="closeModal" class="btn btn-cancel me-4">Cancel</button>
-          <button @click="updateProfile" class="btn btn-update">Update Profile</button>
+          <button @click="closeModal" class="btn btn-cancel me-4">
+            Cancel
+          </button>
+          <button @click="updateProfile" class="btn btn-update">
+            Update Profile
+          </button>
         </div>
       </div>
     </div>
 
-    <input type="file" ref="fileInput" @change="onFileChange" style="display: none;" />
+    <input type="file" ref="fileInput" @change="onFileChange" style="display: none" />
 
     <!-- Navigation for My Story and Bookmark -->
     <div class="nav-tabs container my-5">
-      <button @click="showMyStory" class="tab-button" :class="{ active: isMyStory }">My Story</button>
-      <button @click="showBookmark" class="tab-button" :class="{ active: !isMyStory }">Bookmark</button>
+      <button @click="showMyStory" class="tab-button" :class="{ active: isMyStory }">
+        My Story
+      </button>
+      <button @click="showBookmark" class="tab-button" :class="{ active: !isMyStory }">
+        Bookmark
+      </button>
     </div>
 
     <div class="d-flex container">
       <div class="write-story col-md-4 me-5">
         <h3 class="mb-3">Write your story</h3>
-        <p>Share your unique voice with the world – start writing your story today!</p>
+        <p>
+          Share your unique voice with the world – start writing your story
+          today!
+        </p>
         <nuxt-link to="/addStory" class="btn btn-write-story mt-3">Write Story</nuxt-link>
       </div>
 
       <div v-if="isMyStory" class="col-md-8">
         <div v-if="stories.length > 0" class="stories-grid">
           <CardUser v-for="story in paginatedStories" :key="story.id"
-            :imageSrc="`https://41c9-103-100-175-121.ngrok-free.app/storage/${story.content_images[0].path}`"
-            :profilePic="`https://41c9-103-100-175-121.ngrok-free.app/storage/${story.user.image}`" 
-            :title="story.title" 
-            :description="story.content"
-            :userName="story.user.username" 
-            :createdAt="formatDate(story.created_at)" />
+            :imageSrc="`${ngrokUrl}/storage/${story.content_images[0].path}`"
+            :profilePic="`${ngrokUrl}/storage/${story.user.image}`" :title="story.title"
+            :description="story.content" :userName="story.user.username" :createdAt="formatDate(story.created_at)"
+            :storyId="story.id" />
         </div>
+
         <div v-else class="story-section text-center">
           <h2>No Stories Yet</h2>
-          <p>You haven't shared any stories yet. Start your fitness journey today!</p>
+          <p>
+            You haven't shared any stories yet. Start your fitness journey
+            today!
+          </p>
           <div class="illustration">
             <img src="@/asset/profile/story.png" alt="Illustration" class="img-fluid" />
           </div>
@@ -102,7 +119,10 @@
       <div v-else class="col-md-8">
         <div class="bookmark-section text-center">
           <h2>No Bookmarks Yet</h2>
-          <p>You haven't saved any bookmarks yet. Explore and bookmark your top workouts!</p>
+          <p>
+            You haven't saved any bookmarks yet. Explore and bookmark your top
+            workouts!
+          </p>
           <div class="illustration">
             <img src="@/asset/profile/bookmark.png" alt="Bookmark Illustration" class="img-fluid" />
           </div>
@@ -115,27 +135,30 @@
     <div v-if="stories.length > 0" class="pagination py-5 my-5">
       <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
       <span v-for="page in totalPages" :key="page">
-        <button
-          v-if="page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)"
-          @click="currentPage = page"
-          :class="{ active: currentPage === page }">
+        <button v-if="
+          page === 1 ||
+          page === totalPages ||
+          (page >= currentPage - 1 && page <= currentPage + 1)
+        " @click="currentPage = page" :class="{ active: currentPage === page }">
           {{ page }}
         </button>
-        <span v-if="page === currentPage + 2">...</span>
+        <span v-if="page === currentPage + 2"></span>
       </span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+      <button @click="nextPage" :disabled="currentPage === totalPages">
+        Next
+      </button>
     </div>
   </div>
 </template>
 
 <script>
-import { useAuthStore } from '@/store/auth';
-import { ref, computed, onMounted } from 'vue';
-import axios from 'axios';
-import defaultImage from '@/asset/icon/User.png';
-import Cookies from 'js-cookie';
-import CardUser from '~/components/CardUser.vue';
-import { ngrokUrl } from '@/store/ngrokConfig';
+import { useAuthStore } from "@/store/auth";
+import { ref, computed, onMounted } from "vue";
+import axios from "axios";
+import defaultImage from "@/asset/icon/User.png";
+import Cookies from "js-cookie";
+import CardUser from "~/components/CardUser.vue";
+import { ngrokUrl } from "@/store/ngrokConfig";
 
 export default {
   components: {
@@ -148,12 +171,12 @@ export default {
     const isMyStory = ref(true);
     const stories = ref([]);
     const formData = ref({
-      name: '',
-      email: '',
-      about: '',
-      oldPassword: '',
-      newPassword: '',
-      confirmPassword: '',
+      name: "",
+      email: "",
+      about: "",
+      oldPassword: "",
+      newPassword: "",
+      confirmPassword: "",
       image: null,
     });
     const currentPage = ref(1);
@@ -166,7 +189,9 @@ export default {
       return user.value.image || defaultImage;
     });
 
-    const totalPages = computed(() => Math.ceil(stories.value.length / storiesPerPage));
+    const totalPages = computed(() =>
+      Math.ceil(stories.value.length / storiesPerPage)
+    );
 
     const paginatedStories = computed(() => {
       const start = (currentPage.value - 1) * storiesPerPage;
@@ -178,40 +203,40 @@ export default {
       try {
         await authStore.fetchUserData();
         user.value = authStore.user || {};
-        formData.value.name = user.value.name || '';
-        formData.value.email = user.value.email || '';
-        formData.value.about = user.value.about || '';
-        formData.value.image = user.value.image || '';
-        Cookies.set('user', JSON.stringify(user.value));
+        formData.value.name = user.value.name || "";
+        formData.value.email = user.value.email || "";
+        formData.value.about = user.value.about || "";
+        formData.value.image = user.value.image || "";
+        Cookies.set("user", JSON.stringify(user.value));
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error("Error fetching user data:", error);
         user.value = {};
-        formData.value.name = '';
-        formData.value.email = '';
-        formData.value.about = '';
-        formData.value.image = '';
+        formData.value.name = "";
+        formData.value.email = "";
+        formData.value.about = "";
+        formData.value.image = "";
       }
     };
 
     const fetchUserStories = async () => {
       try {
-        const token = Cookies.get('authToken');
+        const token = Cookies.get("authToken");
 
         if (!token) {
-          throw new Error('Authorization token not found');
+          throw new Error("Authorization token not found");
         }
 
         const response = await axios.get(`${ngrokUrl}/api/stories/my-stories`, {
           headers: {
             "ngrok-skip-browser-warning": "69420",
-            "Authorization": `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const apiStories = response.data.data;
         const userInfo = response.data.user;
 
-        stories.value = apiStories.map(story => ({
+        stories.value = apiStories.map((story) => ({
           id: story.id,
           title: story.title,
           content: story.content,
@@ -224,17 +249,17 @@ export default {
             email: userInfo.email,
             image: userInfo.image,
             about: userInfo.about,
-          }
+          },
         }));
 
-        console.log('User Stories:', stories.value);
+        console.log("User Stories:", stories.value);
       } catch (error) {
-        console.error('Error fetching user stories:', error);
+        console.error("Error fetching user stories:", error);
       }
     };
 
     const formatDate = (dateString) => {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      const options = { year: "numeric", month: "long", day: "numeric" };
       return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
@@ -252,7 +277,7 @@ export default {
     };
 
     const selectFile = () => {
-      document.querySelector('input[type=file]').click();
+      document.querySelector("input[type=file]").click();
     };
 
     const onFileChange = (event) => {
@@ -274,11 +299,14 @@ export default {
 
         if (formData.value.image) {
           const formDataImage = new FormData();
-          formDataImage.append('image', formData.value.image);
+          formDataImage.append("image", formData.value.image);
           await authStore.updateImage(formDataImage);
         }
 
-        if (formData.value.newPassword && formData.value.newPassword === formData.value.confirmPassword) {
+        if (
+          formData.value.newPassword &&
+          formData.value.newPassword === formData.value.confirmPassword
+        ) {
           const passwordData = {
             old_password: formData.value.oldPassword,
             new_password: formData.value.newPassword,
@@ -290,8 +318,9 @@ export default {
         await userFetchData();
         await fetchUserStories();
         closeModal();
+        location.reload();
       } catch (error) {
-        console.error('Error updating profile:', error);
+        console.error("Error updating profile:", error);
       }
     };
 
@@ -336,6 +365,7 @@ export default {
       currentPage,
       nextPage,
       prevPage,
+      ngrokUrl,
     };
   },
 };

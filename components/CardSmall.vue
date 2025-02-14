@@ -1,6 +1,6 @@
 <template>      
   <div class="d-flex justify-content-center">      
-    <div class="card">      
+    <div class="card" @click="navigateToDetail">      
       <div class="image-container">      
         <img :src="imageSrc" class="card-img-top card-image" alt="..." />      
         <div class="bookmark-icon"></div>      
@@ -26,7 +26,11 @@
       
 <script>      
 export default {      
-  props: {      
+  props: { 
+    id: {
+      type: [Number, String],
+      required: true
+    },     
     imageSrc: {      
       type: String,      
       required: true,      
@@ -55,7 +59,12 @@ export default {
       type: String,      
       required: true,      
     },      
-  },      
+  },  
+  methods: {
+    navigateToDetail() {
+      this.$router.push(`/stories/${this.id}`);
+    }
+  }    
 };      
 </script>      
       

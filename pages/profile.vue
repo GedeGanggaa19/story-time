@@ -133,7 +133,6 @@
 
     <!-- Pagination -->
     <div v-if="stories.length > 0" class="pagination py-5 my-5">
-      <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
       <span v-for="page in totalPages" :key="page">
         <button v-if="
           page === 1 ||
@@ -338,12 +337,6 @@ export default {
       }
     };
 
-    const prevPage = () => {
-      if (currentPage.value > 1) {
-        currentPage.value--;
-      }
-    };
-
     return {
       user,
       isModalOpen,
@@ -364,7 +357,6 @@ export default {
       totalPages,
       currentPage,
       nextPage,
-      prevPage,
       ngrokUrl,
     };
   },
@@ -553,7 +545,7 @@ export default {
 .pagination {
   display: flex;
   margin-top: 20px;
-  margin-left: 860px;
+  margin-left: 850px;
 }
 
 .pagination button:hover {

@@ -1,126 +1,219 @@
-<template>  
-  <div>  
-    <Header></Header>  
-  
-    <!-- Breadcrumb Navigation -->  
-    <nav class="breadcrumb container-fluid fontDmSans">  
-      <a href="/" class="breadcrumb-item"><span>Home</span></a>  
-      <span class="breadcrumb-separator">/</span>  
-      <a href="allStory" class="breadcrumb-item"><span>{{ title }}</span></a>  
-    </nav>  
-  
-    <main class="detail-page container">  
-      <article class="detail-content">  
-        <div class="detail-header">  
-          <p class="date fontDmSans">{{ date }}</p>  
-          <h1 class="title my-5 fontPlayfair">{{ title }}</h1>  
-          <div class="author-info mb-5">  
-            <img :src="profilePic" alt="Profile Picture" class="profile-pic" />  
-            <p class="author fontDmSans">{{ author }}</p>  
-          </div>  
-        </div>  
-        <div class="row content-wrapper mb-5">  
-          <div class="col-md-4 pe-4">  
-            <img :src="imageSrc" alt="Guardians of the Galaxy" class="cover-image" />  
-            <div class="image-grid">  
-              <div class="grid-container">  
-                <img v-for="(img, index) in imageGrid" :key="index" :src="imageSrc" alt="Gallery Image" class="grid-image" />  
-              </div>  
-            </div>  
-          </div>  
-          <div class="col-md-8 text-content ps-4 mb-5 fontDmSans">  
-            <p v-for="(paragraph, index) in content" :key="index">{{ paragraph }}</p>  
-          </div>  
-        </div>  
-        <div class="bookmark-icon" @click="bookmarkStory"></div>  
-      </article>  
-  
-      <!-- Similar Stories Section -->  
-      <section class="similar-stories mt-5">  
-        <h2 class="fontPlayfair">Similar Stories</h2>  
-        <hr class="my-5">
-        <div class="d-flex flex-wrap">  
-          <CardLatest  
-            v-for="(story, index) in similarStories"  
-            :key="index"  
-            :imageSrc="imageSrc"  
-            :profilePic="profilePic"  
-            :title="story.title"  
-            :description="story.description"  
-            :userName="story.userName"  
-            :createdAt="story.createdAt"  
-            :category="story.category"  
-            class="mb-5"
-          />  
-        </div>  
-      </section>  
-    </main>  
-    <Footer class="mt-5"></Footer>  
-  </div>  
-</template>  
-  
-<script>  
-import imageSrc from '../asset/home/test.jpg'; // Adjust the path as necessary  
-import profilePic from '../asset/home/test.jpg'; // Use the specified profile picture  
-import CardLatest from '~/components/CardLatest.vue';  
-  
-export default {  
-  name: 'DetailPage',  
-  components: { CardLatest },  
-  data() {  
-    return {  
-      title: 'Guardians of the Galaxy Vol. 3',  
-      date: '15 May 2023',  
-      author: 'By Juliana Putra',  
-      imageSrc: imageSrc,  
-      profilePic: profilePic, // Using the specified profile picture  
-      content: [  
-        'At their new headquarters on Knowhere, the Guardians of the Galaxy are attacked by Adam Warlock, a Sovereign warrior created by the High Evolutionary. Adam discovers the Guardians dramatically need Rocket, who is injured on Nebula\'s ship. The Guardians are unable to find Rocket\'s whereabouts and, as a last resort, made by the company Orgosphere, embarks on him. They travel to Orgosphere headquarters to find the elusive code.',  
-        'As Rocket is unconscious, he recalls his past. As a baby raccoon, he was experimented on by the High Evolutionary, a scientist who exploits his science and technological capabilities to create a Counter-Earth. Rocket befriends the High Evolutionary\'s other subjects, including the walrus Teefs and the rabbit Floor. The High Evolutionary is impressed by Rocket\'s intelligence but treats the other subjects harshly. Rocket finally tries to escape with his friends, but the High Evolutionary orders them to be exterminated and his friends are enhanced. Rocket finally tries to go to the High Evolutionary to take his place instead.',  
-        'In the present, the abominable version of Gamora (who has joined the Ravagers) helps the Guardians infiltrate Orgosphere. They retrieve Rocket, but discover that the code has been removed. The group speculates that the one of the High Evolutionary\'s previous locks is to key discover Counter-Earth. They are followed by the previous villain, who ordered for their capture.',  
-        'Upon arriving, the residents implore to find the High Evolutionary\'s ship. One of Rocket\'s friends remains with Gamora and Rocket\'s friend, Peter Quill, and Nebula must find the High Evolutionary\'s ship. Nebula is tasked to send out a distress signal to get help from the Guardians.',  
-        'The High Evolutionary initiates the destruction of Counter-Earth, which will kill all of the planets, including Earth. As the ship enters orbit, Quill and Groot begin to find the interesting ship to destroy the Guardians\' ship. They are joined by Rocket, Nebula, and Adam Warlock, who is now a member of the Guardians.',  
-        'Meanwhile, Peter Quill once more reunites with his estranged children on Earth before being interrupted by the Guardians. They are tasked to save the universe from the High Evolutionary\'s plans. In the aftermath, Quill vows the Guardians, becoming the capacity to travel back to Earth to reunite with his grandfather Jason. Nebula embarks on a journey of self-discovery with the Abilisk. Gamora reunites with the Ravagers, and Nebula finds a new sense of purpose. The Guardians, consisting of Rocket, Groot, Cosmo, Kraglin, Adam, (who is rescued children), and Adam\'s pet Blurp, take on a new mission in space while Quill\'s grandfather visits Jason.'  
-      ],  
-      imageGrid: [  
-        imageSrc,  
-        imageSrc,  
-        imageSrc,  
-        imageSrc  
-      ],  
-      similarStories: [  
-        {  
-          title: 'Harry Potter and the Philosopher’s Stone',  
-          description: 'Harry Potter and the Philosopher’s Stone is a fantasy novel written by British author J.K. Rowling.',  
-          userName: 'Kim Jong In',  
-          createdAt: '14 July 2023',  
-          category: 'Romance'  
-        },  
-        {  
-          title: 'Spring in London',  
-          description: 'A story about love and adventure in the vibrant city of London.',  
-          userName: 'Kim Jong In',  
-          createdAt: '05 July 2023',  
-          category: 'Drama'  
-        },  
-        {  
-          title: 'Autumn in Paris',  
-          description: 'A romantic tale set against the backdrop of beautiful Paris in autumn.',  
-          userName: 'Kim Jong In',  
-          createdAt: '05 July 2023',  
-          category: 'Romance'  
-        }  
-      ]  
-    };  
-  },  
-  methods: {  
-    bookmarkStory() {  
-      // Logic to handle bookmarking the story  
-      alert('Story bookmarked!');  
-    }  
-  }  
-}  
-</script>  
+<template>
+  <div>
+    <Header></Header>
+
+    <div v-if="loading" class="loading-container">
+      <div class="spinner"></div>
+    </div>
+
+    <template v-else-if="story">
+      <nav class="breadcrumb container-fluid fontDmSans">
+        <a href="/" class="breadcrumb-item"><span>Home</span></a>
+        <span class="breadcrumb-separator">/</span>
+        <a href="/stories" class="breadcrumb-item"><span>Stories</span></a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-item active">{{ story.title }}</span>
+      </nav>
+
+      <main class="detail-page container">
+        <article class="detail-content">
+          <div class="detail-header">
+            <div class="category-tag">{{ story.category.name }}</div>
+            <p class="date fontDmSans">{{ formatDate(story.created_at) }}</p>
+            <h1 class="title my-5 fontPlayfair">{{ story.title }}</h1>
+            <div class="author-info mb-5">
+              <img :src="`${ngrokUrl}/storage/${story.user.image}`" alt="Profile Picture" class="profile-pic" />
+              <div class="author-details">
+                <p class="author-name fontDmSans">{{ story.user.username }}</p>
+                <p class="author-date fontDmSans">{{ formatDate(story.created_at) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-wrapper mb-5">
+            <div class="image-gallery mb-4">
+              <div class="main-image">
+                <img :src="`${ngrokUrl}/storage/${story.content_images[0].path}`" :alt="story.title" class="cover-image" />
+              </div>
+              <div v-if="story.content_images.length > 1" class="image-grid">
+                <img 
+                  v-for="(image, index) in story.content_images.slice(1)" 
+                  :key="index"
+                  :src="`${ngrokUrl}/storage/${image.path}`"
+                  :alt="`${story.title} image ${index + 2}`"
+                  class="grid-image"
+                  @click="openImageGallery(index + 1)"
+                />
+              </div>
+            </div>
+
+            <div class="story-content fontDmSans" v-html="story.content"></div>
+          </div>
+
+          <div class="story-actions">
+            <button class="action-button like" @click="toggleLike">
+              <i :class="['fas', 'fa-heart', { 'text-danger': isLiked }]"></i>
+              <span>{{ story.likes_count || 0 }}</span>
+            </button>
+            <button class="action-button bookmark" @click="toggleBookmark">
+              <i :class="['fas', 'fa-bookmark', { 'text-primary': isBookmarked }]"></i>
+            </button>
+          </div>
+        </article>
+
+        <section v-if="similarStories.length" class="similar-stories mt-5">
+          <h2 class="section-title fontPlayfair">Similar Stories</h2>
+          <div class="stories-grid">
+            <CardLatest
+              v-for="story in similarStories"
+              :key="story.id"
+              :id="story.id"
+              :imageSrc="`${ngrokUrl}/storage/${story.content_images[0].path}`"
+              :profilePic="`${ngrokUrl}/storage/${story.user.image}`"
+              :title="story.title"
+              :description="story.content"
+              :userName="story.user.username"
+              :createdAt="formatDate(story.created_at)"
+              :category="story.category.name"
+            />
+          </div>
+        </section>
+      </main>
+    </template>
+
+    <div v-else class="error-container">
+      <p>Story not found</p>
+      <router-link to="/" class="btn btn-primary">Back to Home</router-link>
+    </div>
+
+    <Footer class="mt-5"></Footer>
+  </div>
+</template>
+
+<script>
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios';
+import { useAuthStore } from '@/store/auth';
+import { ngrokUrl } from '@/store/ngrokConfig';
+import CardLatest from '@/components/CardLatest.vue';
+
+export default {
+  components: {
+    CardLatest
+  },
+
+  setup() {
+    const route = useRoute();
+    const router = useRouter();
+    const authStore = useAuthStore();
+    
+    const story = ref(null);
+    const similarStories = ref([]);
+    const loading = ref(true);
+    const isLiked = ref(false);
+    const isBookmarked = ref(false);
+
+    const fetchStory = async () => {
+      try {
+        const response = await axios.get(`${ngrokUrl}/api/stories/${route.params.id}`, {
+          headers: {
+            'Authorization': `Bearer ${authStore.token}`,
+            'ngrok-skip-browser-warning': '69420'
+          }
+        });
+        story.value = response.data.data;
+        await fetchSimilarStories(story.value.category.id);
+      } catch (error) {
+        console.error('Error fetching story:', error);
+        router.push('/404');
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    const fetchSimilarStories = async (categoryId) => {
+      try {
+        const response = await axios.get(`${ngrokUrl}/api/stories`, {
+          headers: {
+            'ngrok-skip-browser-warning': '69420'
+          },
+          params: {
+            category: categoryId,
+            exclude: route.params.id,
+            limit: 3
+          }
+        });
+        similarStories.value = response.data.data.data;
+      } catch (error) {
+        console.error('Error fetching similar stories:', error);
+      }
+    };
+
+    const toggleLike = async () => {
+      if (!authStore.isAuthenticated) {
+        router.push('/login');
+        return;
+      }
+
+      try {
+        await axios.post(`${ngrokUrl}/api/stories/${story.value.id}/like`, {}, {
+          headers: {
+            'Authorization': `Bearer ${authStore.token}`,
+            'ngrok-skip-browser-warning': '69420'
+          }
+        });
+        isLiked.value = !isLiked.value;
+        story.value.likes_count = isLiked.value ? 
+          (story.value.likes_count || 0) + 1 : 
+          (story.value.likes_count || 1) - 1;
+      } catch (error) {
+        console.error('Error toggling like:', error);
+      }
+    };
+
+    const toggleBookmark = async () => {
+      if (!authStore.isAuthenticated) {
+        router.push('/login');
+        return;
+      }
+
+      try {
+        await axios.post(`${ngrokUrl}/api/stories/${story.value.id}/bookmark`, {}, {
+          headers: {
+            'Authorization': `Bearer ${authStore.token}`,
+            'ngrok-skip-browser-warning': '69420'
+          }
+        });
+        isBookmarked.value = !isBookmarked.value;
+      } catch (error) {
+        console.error('Error toggling bookmark:', error);
+      }
+    };
+
+    const formatDate = (date) => {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(date).toLocaleDateString(undefined, options);
+    };
+
+    onMounted(() => {
+      fetchStory();
+    });
+
+    return {
+      story,
+      similarStories,
+      loading,
+      isLiked,
+      isBookmarked,
+      toggleLike,
+      toggleBookmark,
+      formatDate,
+      ngrokUrl
+    };
+  }
+};
+</script>
 
 <style scoped>
 

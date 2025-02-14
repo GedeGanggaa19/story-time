@@ -29,9 +29,10 @@
         <hr>      
       </div>      
       <div class="stories-grid">      
-        `<CardLatest      
+        <CardLatest      
           v-for="story in stories"      
-          :key="story.id"      
+          :key="story.id"
+          :id="story.id"      
           :imageSrc="`${ngrokUrl}/storage/${story.content_images[0].path}`"      
           :profilePic="`${ngrokUrl}/storage/${story.user.image}`"      
           :title="story.title"      
@@ -40,7 +41,7 @@
           :createdAt="formatDate(story.created_at)"      
           :category="story.category.name"      
         />      
-      </div>      ` 
+      </div>      
     </div>      
     
     <!-- Comedy Section -->      
@@ -59,7 +60,8 @@
         <div class="col-lg-8 col-md-6">      
           <CardBig      
           v-for="(comedy, index) in comedies.slice(0, 1)" 
-          :key="index"      
+          :key="index"  
+          :id="comedy.id"      
           :imageSrc="`${ngrokUrl}/storage/${comedy.content_images[0].path}`"      
           :profilePic="`${ngrokUrl}/storage/${comedy.user.image}`"      
           :title="comedy.title"      
@@ -73,11 +75,12 @@
         <div class="d-flex flex-column">      
           <CardSmall      
             v-for="(comedy, index) in comedies.slice(1, 3)" 
-            :key="index"      
+            :key="index"
+            :id="comedy.id"      
             :imageSrc="`${ngrokUrl}/storage/${comedy.content_images[0].path}`"      
             :profilePic="`${ngrokUrl}/storage/${comedy.user.image}`"      
             :title="comedy.title"      
-            :description="comedy.content"      
+            :description="comedy.content"       
             :userName="comedy.user.username"      
             :createdAt="formatDate(comedy.created_at)"      
             :category="comedy.category"      
@@ -101,7 +104,8 @@
       </div>        
       <div class="row">        
         <div class="col-lg-4 col-md-6" v-for="(romance, index) in romances.slice(0, 3)" :key="index">        
-          <Card        
+          <Card
+            :id="romance.id"      
             :imageSrc="`${ngrokUrl}/storage/${romance.content_images[0].path}`"        
             :profilePic="`${ngrokUrl}/storage/${romance.user.image}`"        
             :title="romance.title"        
@@ -129,7 +133,8 @@
         <div class="col-lg-8 col-md-6">      
           <CardBig      
             v-for="(horror, index) in horrors.slice(0, 1)"      
-            :key="index"      
+            :key="index" 
+            :id="horror.id"     
             :imageSrc="`${ngrokUrl}/storage/${horror.content_images[0].path}`"      
             :profilePic="`${ngrokUrl}/storage/${horror.user.image}`"      
             :title="horror.title"      
@@ -143,7 +148,8 @@
           <div class="d-flex flex-column">      
             <CardSmall      
               v-for="(horror, index) in horrors.slice(1, 3)"      
-              :key="index"      
+              :key="index"  
+              :id="horror.id"      
               :imageSrc="`${ngrokUrl}/storage/${horror.content_images[0].path}`"      
               :profilePic="`${ngrokUrl}/storage/${horror.user.image}`"      
               :title="horror.title"      
@@ -192,7 +198,7 @@
     </div>      
   </div>  
   <Footer></Footer>      
-</template>      
+</template>  
       
 <script>      
 import { useAuthStore } from '@/store/auth';    
@@ -203,7 +209,8 @@ import { ngrokUrl } from '@/store/ngrokConfig';
 import Card from '@/components/Card.vue';      
 import CardBig from '@/components/CardBig.vue';      
 import CardSmall from '@/components/CardSmall.vue';    
-import CardLatest from '@/components/CardLatest.vue';    
+import CardLatest from '@/components/CardLatest.vue';  
+import CardBookmark from '~/components/CardBookmark.vue';  
 import imageSrc from '../asset/home/test.jpg';      
 import profilePic from '../asset/home/test.jpg';      
       
@@ -213,6 +220,7 @@ export default {
     CardBig,      
     CardSmall,      
     CardLatest,  
+    CardBookmark,
   },      
   setup() {      
     const authStore = useAuthStore();    
@@ -281,7 +289,7 @@ export default {
            "ngrok-skip-browser-warning": "69420"  
          }  
        });  
-       console.log(response.data); // Log respons API  
+       console.log('ROMANE DATA',response.data); // Log respons API  
        romances.value = response.data.data; // Ambil data cerita dari response  
        console.log(romances.value); // Cek data yang diterima  
      } catch (error) {  

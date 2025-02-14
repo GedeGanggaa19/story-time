@@ -1,11 +1,11 @@
 <template>
   <Header></Header>
-  <div class="add-story container">
+  <div class="update-story container">
     <div class="d-flex align-items-center">
       <nuxt-link to="/profile">
         <i class="text-dark fa-solid fa-arrow-left fs-1 me-5"></i>
       </nuxt-link>
-      <h1>Write Story</h1>
+      <h1>Update Story</h1>
     </div>
     <form @submit.prevent="submitStory">
       <div class="form-title my-5">
@@ -59,7 +59,7 @@
             </button>
           </div>
           <div class="textarea-wrapper" contenteditable="true" id="content" @input="updateContent($event)"
-            placeholder="Enter content here"></div>
+            placeholder="Enter content here" v-html="content"></div>
         </div>
       </div>
 
@@ -76,15 +76,15 @@
             </div>
             <div v-else class="preview-grid">
               <div v-for="(file, index) in content_images" :key="index" class="preview-item">
-                <img :src="imagePreviews[index]" :alt="file.name" class="preview-image" />
+                <img :src="getImagePreview(file)" :alt="getImageName(file)" class="preview-image" />
                 <div class="preview-overlay">
-                  <span class="file-name">{{ file.name }}</span>
+                  <span class="file-name">{{ getImageName(file) }}</span>
                   <button class="remove-btn" @click.stop="removeImage(index)">
                     <i class="fa-solid fa-times"></i>
                   </button>
                 </div>
               </div>
-              <div class="add-more" @click.stop="triggerFileInput">
+              <div v-if="content_images.length < 5" class="add-more" @click.stop="triggerFileInput">
                 <i class="fa-solid fa-plus"></i>
                 <span>Add More</span>
               </div>
@@ -95,7 +95,7 @@
 
       <div class="form-button my-5">
         <button type="button" @click="cancel" class="btn btnCancel me-5">Cancel</button>
-        <button type="submit" class="btn btnPost">Post Story</button>
+        <button type="submit" class="btn btnUpdate">Update Story</button>
       </div>
     </form>
   </div>
@@ -105,14 +105,15 @@
 <script>
 import { useAuthStore } from '../store/auth';
 import Cookies from 'js-cookie';
+import { ngrokUrl } from '~/store/ngrokConfig';
 
 export default {
   data() {
     return {
+      storyId: this.$route.params.id,
       title: '',
       content: '',
       content_images: [],
-      imagePreviews: [],
       categories: [],
       selectedCategory: '',
       history: [],
@@ -120,35 +121,74 @@ export default {
     };
   },
   methods: {
+    async fetchStory() {
+      try {
+        const token = Cookies.get('authToken');
+        const response = await fetch(`${ngrokUrl}/api/stories/${this.storyId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'ngrok-skip-browser-warning': '69420',
+          },
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const story = data.data;
+
+        this.title = story.title;
+        this.selectedCategory = story.category_id;
+        this.content = story.content;
+
+        // Convert existing images to a format that matches our needs
+        this.content_images = story.content_images.map(image => ({
+          id: image.id,
+          path: image.path,
+          original_name: image.original_name,
+          url: `${ngrokUrl}/storage/${image.path}`,
+          isExisting: true
+        }));
+
+        console.log('Story loaded:', story);
+      } catch (error) {
+        console.error('Error fetching story:', error);
+        alert('Failed to load story. Please refresh the page.');
+      }
+    },
+
     async submitStory() {
       try {
-        // Validate form data
         if (!this.title || !this.selectedCategory || !this.content) {
           alert('Please fill in all required fields');
           return;
         }
 
-        const authStore = useAuthStore();
-        const formData = new FormData();
         const token = Cookies.get('authToken');
+        const formData = new FormData();
 
+        // Add basic story data
+        formData.append('_method', 'PUT');
         formData.append('title', this.title);
         formData.append('category_id', this.selectedCategory);
         formData.append('content', this.content);
 
-        // Append each image file
-        this.content_images.forEach((file, index) => {
+        // Add existing image IDs
+        const existingImageIds = this.content_images
+          .filter(image => image.isExisting)
+          .map(image => image.id);
+        formData.append('existing_images', JSON.stringify(existingImageIds));
+
+        // Add new images
+        const newImages = this.content_images.filter(image => !image.isExisting);
+        newImages.forEach((file, index) => {
           formData.append(`content_images[${index}]`, file);
         });
 
-        console.log('Submitting data:', {
-          title: this.title,
-          category_id: this.selectedCategory,
-          content: this.content,
-          content_images: this.content_images
-        });
-
-        const response = await fetch('https://32de-103-100-175-121.ngrok-free.app/api/stories', {
+        const response = await fetch(`${ngrokUrl}/api/stories/${this.storyId}`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -158,75 +198,65 @@ export default {
           body: formData
         });
 
-        // Log response details for debugging
-        console.log('Response status:', response.status);
-        console.log('response tOKEN', authStore.token);
         const responseText = await response.text();
         console.log('Response text:', responseText);
 
         if (!response.ok) {
-          try {
-            const errorData = JSON.parse(responseText);
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-          } catch (e) {
-            throw new Error(`Server error (${response.status}): ${responseText.substring(0, 100)}...`);
-          }
+          const errorData = JSON.parse(responseText);
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
 
-        let result;
-        try {
-          result = JSON.parse(responseText);
-        } catch (e) {
-          throw new Error('Invalid JSON response from server');
-        }
+        const result = JSON.parse(responseText);
+        console.log('Story updated successfully:', result);
 
-        console.log('Story created successfully:', result);
-
-        // Reset form after success
-        this.cancel();
-
-        // Show success message
-        alert('Story has been created successfully!');
-
-        // Redirect to profile page
+        alert('Story has been updated successfully!');
         this.$router.push('/profile');
       } catch (error) {
-        console.error('Error creating story:', error);
-        alert(`Failed to create story: ${error.message}`);
+        console.error('Error updating story:', error);
+        alert(`Failed to update story: ${error.message}`);
       }
     },
 
     triggerFileInput() {
-      this.$refs.fileInput.click();
+      if (this.content_images.length < 5) {
+        this.$refs.fileInput.click();
+      } else {
+        alert('Maximum 5 images allowed');
+      }
     },
 
     onFilesChange(event) {
       const files = Array.from(event.target.files);
+      const totalImages = this.content_images.length + files.length;
+      
+      if (totalImages > 5) {
+        alert('Maximum 5 images allowed');
+        return;
+      }
+
       files.forEach(file => {
-        const isDuplicate = this.content_images.some(f => f.name === file.name);
-        if (!isDuplicate && this.content_images.length < 5) {
+        const isDuplicate = this.content_images.some(existing => 
+          existing.isExisting ? existing.original_name === file.name : existing.name === file.name
+        );
+
+        if (!isDuplicate) {
           this.content_images.push(file);
-          this.imagePreviews.push(URL.createObjectURL(file));
         }
       });
+
       event.target.value = '';
     },
 
     removeImage(index) {
-      URL.revokeObjectURL(this.imagePreviews[index]);
       this.content_images.splice(index, 1);
-      this.imagePreviews.splice(index, 1);
     },
 
-    cancel() {
-      this.title = '';
-      this.selectedCategory = ''; // Changed from category to selectedCategory
-      this.content = '';
-      this.content_images = [];
-      this.imagePreviews.forEach(url => URL.revokeObjectURL(url));
-      this.imagePreviews = [];
-      this.history = [];
-      this.historyIndex = -1;
+    getImagePreview(image) {
+      return image.isExisting ? image.url : URL.createObjectURL(image);
+    },
+
+    getImageName(image) {
+      return image.isExisting ? image.original_name : image.name;
     },
 
     format(command, value) {
@@ -271,8 +301,7 @@ export default {
 
     async fetchCategories() {
       try {
-        const authStore = useAuthStore();
-        const response = await fetch('https://32de-103-100-175-121.ngrok-free.app/api/categories', {
+        const response = await fetch(`${ngrokUrl}/api/categories`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -287,7 +316,6 @@ export default {
 
         const data = await response.json();
         this.categories = data.data;
-        console.log('Categories loaded:', this.categories);
       } catch (error) {
         console.error('Error fetching categories:', error);
         alert('Failed to load categories. Please refresh the page.');
@@ -297,11 +325,17 @@ export default {
 
   mounted() {
     this.fetchCategories();
+    this.fetchStory();
   },
 
   beforeUnmount() {
-    this.imagePreviews.forEach(url => URL.revokeObjectURL(url));
-  },
+    // Clean up any object URLs created for File previews
+    this.content_images.forEach(image => {
+      if (!image.isExisting) {
+        URL.revokeObjectURL(this.getImagePreview(image));
+      }
+    });
+  }
 };
 </script>
 
@@ -315,7 +349,7 @@ export default {
   font-family: dm-sans, sans-serif;
 }
 
-.add-story {
+.update-story {
   margin: 0 auto;
   padding: 20px;
 }
@@ -556,14 +590,19 @@ export default {
   color: #222222;
 }
 
-.btnPost {
+.btnUpdate {
   padding: 10px 30px;
   font-size: 20px;
   background-color: #466543;
   color: white;
 }
 
-.btnPost:hover {
+.btnUpdate:hover {
+  background-color: #364934;
+  color: white;
+}
+
+.btnUpdate:hover {
   background-color: #364934;
   color: white;
 }

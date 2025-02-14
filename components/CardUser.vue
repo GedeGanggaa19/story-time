@@ -1,68 +1,72 @@
-<template>        
-    <div class="d-flex">        
-      <div class="card fontDmSans">        
-        <div class="image-container">        
-          <img :src="imageSrc" class="card-img-top card-image" alt="..." />        
-          <nuxt-link to="/updatestory" class="update-icon"></nuxt-link>        
-          <div class="bookmark-icon"></div>        
-          <div class="trash-icon"></div>        
-        </div>        
-        <div class="card-body">        
-          <h5 class="card-title fw-bold fontdmsans">{{ title }}</h5>        
-          <p class="card-text description fontDmSans">{{ description }}</p>      
-          <div class="footer-card">        
-            <img :src="profilePic" class="profile-pic" alt="Profile Picture" />        
-            <div class="bottom-card justify-content-between d-flex align-items-center">        
-              <div>        
-                <p class="mb-0 fontDmSans">{{ userName }}</p>        
-              </div>        
-              <div class="d-flex align-items-center">        
-                <p class="mb-0 me-2 fontDmSans">{{ createdAt }}</p>        
-                <div class="category">        
-                  <p class="mb-0 fontDmSans">{{ category }}</p>        
+    <template>        
+      <div class="d-flex">        
+        <div class="card fontDmSans">        
+          <div class="image-container">        
+            <img :src="imageSrc" class="card-img-top card-image" alt="..." />        
+            <NuxtLink :to="`/update/${storyId}`" class="update-icon"></NuxtLink>       
+            <div class="bookmark-icon"></div>        
+            <div class="trash-icon"></div>        
+          </div>        
+          <div class="card-body">        
+            <h5 class="card-title fw-bold fontdmsans">{{ title }}</h5>        
+            <p class="card-text description fontDmSans">{{ description }}</p>      
+            <div class="footer-card">        
+              <img :src="profilePic" class="profile-pic" alt="Profile Picture" />        
+              <div class="bottom-card justify-content-between d-flex align-items-center">        
+                <div>        
+                  <p class="mb-0 fontDmSans">{{ userName }}</p>        
+                </div>        
+                <div class="d-flex align-items-center">        
+                  <p class="mb-0 me-2 fontDmSans">{{ createdAt }}</p>        
+                  <div class="category">        
+                    <p class="mb-0 fontDmSans">{{ category }}</p>        
+                  </div>        
                 </div>        
               </div>        
             </div>        
           </div>        
         </div>        
       </div>        
-    </div>        
-  </template>        
-        
-  <script>      
-  export default {      
-    props: {      
-      imageSrc: {      
-        type: String,      
-        required: true,      
+    </template>        
+          
+    <script>      
+    export default {      
+      props: {      
+        imageSrc: {      
+          type: String,      
+          required: true,      
+        },      
+        profilePic: {      
+          type: String,      
+          required: true,      
+        },      
+        title: {      
+          type: String,      
+          required: true,      
+        },      
+        description: {      
+          type: String,      
+          required: true,      
+        },      
+        userName: {      
+          type: String,      
+          required: true,      
+        },      
+        createdAt: {      
+          type: String,      
+          required: true,      
+        },      
+        category: {      
+          type: String,      
+          required: true,      
+        },
+        storyId: {
+          type: String,
+          required: true
+        },     
       },      
-      profilePic: {      
-        type: String,      
-        required: true,      
-      },      
-      title: {      
-        type: String,      
-        required: true,      
-      },      
-      description: {      
-        type: String,      
-        required: true,      
-      },      
-      userName: {      
-        type: String,      
-        required: true,      
-      },      
-      createdAt: {      
-        type: String,      
-        required: true,      
-      },      
-      category: {      
-        type: String,      
-        required: true,      
-      },      
-    },      
-  };      
-  </script>        
+    };      
+    </script>       
           
   <style scoped>
   .fontPlayfair {

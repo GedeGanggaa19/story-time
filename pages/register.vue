@@ -7,7 +7,8 @@
       <div class="align-items-center justify-content-center judulRegis">
         <h1 class="h1Regis">Join the World's Most-Loved Social Storytelling Platform!</h1>
         <p class="pRegis">
-          Create an account to explore interesting articles, connect with like-minded people, and share your own stories.
+          Create an account to explore interesting articles, connect with like-minded people, and share your own
+          stories.
         </p>
         <img src="../asset/register/imgRegister.png" alt="Register Image" class="register-image py-3" />
       </div>
@@ -29,15 +30,8 @@
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            v-model="form.password"
-            placeholder="Enter your chosen password"
-            :class="passwordClass"
-            @input="validatePassword"
-            required
-          />
+          <input type="password" id="password" v-model="form.password" placeholder="Enter your chosen password"
+            :class="passwordClass" @input="validatePassword" required />
           <small v-if="form.password && form.password.length < 8" class="text-danger">
             Password must be at least 8 characters
           </small>
@@ -47,15 +41,9 @@
         </div>
         <div class="form-group">
           <label for="confirmPassword">Confirm Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            v-model="form.confirm_password"
-            placeholder="Re-enter your chosen password"
-            :class="confirmPasswordClass"
-            @input="validateConfirmPassword"
-            required
-          />
+          <input type="password" id="confirmPassword" v-model="form.confirm_password"
+            placeholder="Re-enter your chosen password" :class="confirmPasswordClass" @input="validateConfirmPassword"
+            required />
           <small v-if="form.confirm_password && form.password !== form.confirm_password" class="text-danger">
             Passwords do not match
           </small>

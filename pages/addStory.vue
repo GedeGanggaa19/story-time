@@ -94,7 +94,9 @@
       </div>
 
       <div class="form-button my-5">
-        <button type="button" @click="cancel" class="btn btnCancel me-5">Cancel</button>
+        <button type="button" @click="cancel" class="btn btnCancel me-5">
+          Cancel
+        </button>
         <button type="submit" class="btn btnPost">Post Story</button>
       </div>
     </form>
@@ -103,18 +105,18 @@
 </template>
 
 <script>
-import { useAuthStore } from '../store/auth';
-import Cookies from 'js-cookie';
+import { useAuthStore } from "../store/auth";
+import Cookies from "js-cookie";
 
 export default {
   data() {
     return {
-      title: '',
-      content: '',
+      title: "",
+      content: "",
       content_images: [],
       imagePreviews: [],
       categories: [],
-      selectedCategory: '',
+      selectedCategory: "",
       history: [],
       historyIndex: -1,
     };
@@ -124,52 +126,62 @@ export default {
       try {
         // Validate form data
         if (!this.title || !this.selectedCategory || !this.content) {
-          alert('Please fill in all required fields');
+          alert("Please fill in all required fields");
           return;
         }
 
         const authStore = useAuthStore();
         const formData = new FormData();
-        const token = Cookies.get('authToken');
+        const token = Cookies.get("authToken");
 
-        formData.append('title', this.title);
-        formData.append('category_id', this.selectedCategory);
-        formData.append('content', this.content);
+        formData.append("title", this.title);
+        formData.append("category_id", this.selectedCategory);
+        formData.append("content", this.content);
 
         // Append each image file
         this.content_images.forEach((file, index) => {
           formData.append(`content_images[${index}]`, file);
         });
 
-        console.log('Submitting data:', {
+        console.log("Submitting data:", {
           title: this.title,
           category_id: this.selectedCategory,
           content: this.content,
-          content_images: this.content_images
+          content_images: this.content_images,
         });
 
-        const response = await fetch('https://32de-103-100-175-121.ngrok-free.app/api/stories', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-            'ngrok-skip-browser-warning': '69420',
-          },
-          body: formData
-        });
+        const response = await fetch(
+          "https://5557-103-100-175-121.ngrok-free.app/api/stories",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+            body: formData,
+          }
+        );
 
         // Log response details for debugging
-        console.log('Response status:', response.status);
-        console.log('response tOKEN', authStore.token);
+        console.log("Response status:", response.status);
+        console.log("response tOKEN", authStore.token);
         const responseText = await response.text();
-        console.log('Response text:', responseText);
+        console.log("Response text:", responseText);
 
         if (!response.ok) {
           try {
             const errorData = JSON.parse(responseText);
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            throw new Error(
+              errorData.message || `HTTP error! status: ${response.status}`
+            );
           } catch (e) {
-            throw new Error(`Server error (${response.status}): ${responseText.substring(0, 100)}...`);
+            throw new Error(
+              `Server error (${response.status}): ${responseText.substring(
+                0,
+                100
+              )}...`
+            );
           }
         }
 
@@ -177,21 +189,21 @@ export default {
         try {
           result = JSON.parse(responseText);
         } catch (e) {
-          throw new Error('Invalid JSON response from server');
+          throw new Error("Invalid JSON response from server");
         }
 
-        console.log('Story created successfully:', result);
+        console.log("Story created successfully:", result);
 
         // Reset form after success
         this.cancel();
 
         // Show success message
-        alert('Story has been created successfully!');
+        alert("Story has been created successfully!");
 
         // Redirect to profile page
-        this.$router.push('/profile');
+        this.$router.push("/profile");
       } catch (error) {
-        console.error('Error creating story:', error);
+        console.error("Error creating story:", error);
         alert(`Failed to create story: ${error.message}`);
       }
     },
@@ -202,14 +214,16 @@ export default {
 
     onFilesChange(event) {
       const files = Array.from(event.target.files);
-      files.forEach(file => {
-        const isDuplicate = this.content_images.some(f => f.name === file.name);
+      files.forEach((file) => {
+        const isDuplicate = this.content_images.some(
+          (f) => f.name === file.name
+        );
         if (!isDuplicate && this.content_images.length < 5) {
           this.content_images.push(file);
           this.imagePreviews.push(URL.createObjectURL(file));
         }
       });
-      event.target.value = '';
+      event.target.value = "";
     },
 
     removeImage(index) {
@@ -219,19 +233,12 @@ export default {
     },
 
     cancel() {
-      this.title = '';
-      this.selectedCategory = ''; // Changed from category to selectedCategory
-      this.content = '';
-      this.content_images = [];
-      this.imagePreviews.forEach(url => URL.revokeObjectURL(url));
-      this.imagePreviews = [];
-      this.history = [];
-      this.historyIndex = -1;
+      this.$router.push("/profile");
     },
 
     format(command, value) {
       document.execCommand(command, false, value);
-      this.updateContent({ target: document.getElementById('content') });
+      this.updateContent({ target: document.getElementById("content") });
     },
 
     updateContent(event) {
@@ -247,9 +254,9 @@ export default {
     },
 
     promptForLink() {
-      const url = prompt('Enter URL:');
+      const url = prompt("Enter URL:");
       if (url) {
-        this.format('createLink', url);
+        this.format("createLink", url);
       }
     },
 
@@ -257,7 +264,7 @@ export default {
       if (this.historyIndex > 0) {
         this.historyIndex--;
         this.content = this.history[this.historyIndex];
-        document.getElementById('content').innerHTML = this.content;
+        document.getElementById("content").innerHTML = this.content;
       }
     },
 
@@ -265,21 +272,24 @@ export default {
       if (this.historyIndex < this.history.length - 1) {
         this.historyIndex++;
         this.content = this.history[this.historyIndex];
-        document.getElementById('content').innerHTML = this.content;
+        document.getElementById("content").innerHTML = this.content;
       }
     },
 
     async fetchCategories() {
       try {
         const authStore = useAuthStore();
-        const response = await fetch('https://32de-103-100-175-121.ngrok-free.app/api/categories', {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'ngrok-skip-browser-warning': '69420',
-          },
-        });
+        const response = await fetch(
+          "https://5557-103-100-175-121.ngrok-free.app/api/categories",
+          {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -287,12 +297,12 @@ export default {
 
         const data = await response.json();
         this.categories = data.data;
-        console.log('Categories loaded:', this.categories);
+        console.log("Categories loaded:", this.categories);
       } catch (error) {
-        console.error('Error fetching categories:', error);
-        alert('Failed to load categories. Please refresh the page.');
+        console.error("Error fetching categories:", error);
+        alert("Failed to load categories. Please refresh the page.");
       }
-    }
+    },
   },
 
   mounted() {
@@ -300,7 +310,7 @@ export default {
   },
 
   beforeUnmount() {
-    this.imagePreviews.forEach(url => URL.revokeObjectURL(url));
+    this.imagePreviews.forEach((url) => URL.revokeObjectURL(url));
   },
 };
 </script>

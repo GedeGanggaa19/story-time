@@ -1,7 +1,7 @@
 <template>
   <div class="login-container container-fluid">
     <div class="form-section">
-      <nuxt-link to="/"> 
+      <nuxt-link to="/">
         <img src="../asset/logo/storytimeLogo.png" alt="Storytime Logo" class="logo" />
       </nuxt-link>
       <div class="login py-3">
@@ -9,21 +9,24 @@
         <form @submit.prevent="login">
           <div class="form-group">
             <label for="identifier" class="mb-3">Username / Email</label>
-            <input type="text" id="identifier" v-model="form.identifier" placeholder="Enter your username or email" required />
+            <input type="text" id="identifier" v-model="form.identifier" placeholder="Enter your username or email"
+              required />
           </div>
           <div class="form-group">
             <label for="password" class="mb-3">Password</label>
-            <input type="password" id="password" v-model="form.password" placeholder="Enter your chosen password" required />
+            <input type="password" id="password" v-model="form.password" placeholder="Enter your chosen password"
+              required />
           </div>
           <button type="submit" class="login-button">Login</button>
-          <p v-if="error" class="text-danger">{{ error }}</p> 
+          <p v-if="error" class="text-danger">{{ error }}</p>
         </form>
         <p class="mt-5">Don't have an account? <nuxt-link to="/register" class="fw-bold">Register</nuxt-link></p>
       </div>
     </div>
     <div class="welcome-section">
       <h2 class="h2Login">Welcome Back to <br><span>Story Time!</span></h2>
-      <p class="pLogin">Dive back into captivating stories, follow your favorite authors, and continue sharing your own tales.</p>
+      <p class="pLogin">Dive back into captivating stories, follow your favorite authors, and continue sharing your own
+        tales.</p>
       <img src="../asset/login/imgLogin.png" alt="Login Image" class="welcome-image py-3" />
     </div>
   </div>
@@ -67,7 +70,7 @@ export default {
 .login-container {
   display: flex;
   justify-content: space-between;
-  border-radius: 8px; 
+  border-radius: 8px;
   padding: 15px;
   height: 100vh;
 }
@@ -83,10 +86,10 @@ export default {
 }
 
 .logo {
-  width: 100%; 
-  max-width: 200px; 
+  width: 100%;
+  max-width: 200px;
   margin-bottom: 20px;
-  margin-left: 50px; 
+  margin-left: 50px;
   margin-top: 20px;
 }
 
@@ -99,20 +102,20 @@ export default {
 
 .h2Login {
   font-size: 50px;
-  font-weight: 700; 
+  font-weight: 700;
   padding: 100px 100px 0px 100px;
 }
 
 .pLogin {
   font-size: 20px;
-  font-family: dm-sans, sans-serif; 
+  font-family: dm-sans, sans-serif;
   padding: 0px 100px 0px 100px;
   text-shadow: 2px 2px 2px rgba(121, 120, 120, 0.5);
 }
 
 .welcome-image {
   width: 100%;
-  margin-top: 20px; 
+  margin-top: 20px;
 }
 
 .form-group {
@@ -147,11 +150,11 @@ input {
 }
 
 p {
-  margin-top: 20px; 
+  margin-top: 20px;
 }
 
 a {
   color: #364934;
-  text-decoration: none; 
+  text-decoration: none;
 }
 </style>

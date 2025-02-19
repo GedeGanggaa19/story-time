@@ -79,7 +79,7 @@
                 <img :src="getImagePreview(file)" :alt="getImageName(file)" class="preview-image" />
                 <div class="preview-overlay">
                   <span class="file-name">{{ getImageName(file) }}</span>
-                  <button class="remove-btn" @click.stop="removeImage(index)">
+                  <button class="remove-btn" @click.stop="removeImage(index, file)">
                     <i class="fa-solid fa-times"></i>
                   </button>
                 </div>
@@ -94,7 +94,9 @@
       </div>
 
       <div class="form-button my-5">
-        <button type="button" @click="cancel" class="btn btnCancel me-5">Cancel</button>
+        <button type="button" @click="cancel" class="btn btnCancel me-5">
+          Cancel
+        </button>
         <button type="submit" class="btn btnUpdate">Update Story</button>
       </div>
     </form>
@@ -103,19 +105,20 @@
 </template>
 
 <script>
-import { useAuthStore } from '../store/auth';
-import Cookies from 'js-cookie';
-import { ngrokUrl } from '~/store/ngrokConfig';
+import { useAuthStore } from "../store/auth";
+import Cookies from "js-cookie";
+import { ngrokUrl } from "~/store/ngrokConfig";
 
 export default {
   data() {
     return {
       storyId: this.$route.params.id,
-      title: '',
-      content: '',
+      title: "",
+      content: "",
       content_images: [],
+      delete_images: [], // Array to store IDs of images to be deleted
       categories: [],
-      selectedCategory: '',
+      selectedCategory: "",
       history: [],
       historyIndex: -1,
     };
@@ -123,20 +126,23 @@ export default {
   methods: {
     async fetchStory() {
       try {
-        const token = Cookies.get('authToken');
-        const response = await fetch(`${ngrokUrl}/api/stories/${this.storyId}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-            'ngrok-skip-browser-warning': '69420',
-          },
-        });
-        
+        const token = Cookies.get("authToken");
+        const response = await fetch(
+          `${ngrokUrl}/api/stories/${this.storyId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+          }
+        );
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
         const story = data.data;
 
@@ -145,98 +151,113 @@ export default {
         this.content = story.content;
 
         // Convert existing images to a format that matches our needs
-        this.content_images = story.content_images.map(image => ({
+        this.content_images = story.content_images.map((image) => ({
           id: image.id,
           path: image.path,
-          original_name: image.original_name,
+          original_name: image.original_name || image.path.split("/").pop(),
           url: `${ngrokUrl}/storage/${image.path}`,
-          isExisting: true
+          isExisting: true,
         }));
 
-        console.log('Story loaded:', story);
+        console.log("Story loaded:", story);
       } catch (error) {
-        console.error('Error fetching story:', error);
-        alert('Failed to load story. Please refresh the page.');
+        console.error("Error fetching story:", error);
+        alert("Failed to load story. Please refresh the page.");
       }
     },
 
     async submitStory() {
       try {
         if (!this.title || !this.selectedCategory || !this.content) {
-          alert('Please fill in all required fields');
+          alert("Please fill in all required fields");
           return;
         }
 
-        const token = Cookies.get('authToken');
+        const token = Cookies.get("authToken");
         const formData = new FormData();
 
         // Add basic story data
-        formData.append('_method', 'PUT');
-        formData.append('title', this.title);
-        formData.append('category_id', this.selectedCategory);
-        formData.append('content', this.content);
+        formData.append("_method", "PUT");
+        formData.append("title", this.title);
+        formData.append("category_id", this.selectedCategory);
+        formData.append("content", this.content);
 
-        // Add existing image IDs
-        const existingImageIds = this.content_images
-          .filter(image => image.isExisting)
-          .map(image => image.id);
-        formData.append('existing_images', JSON.stringify(existingImageIds));
+        // Add images to be deleted
+        if (this.delete_images.length > 0) {
+          this.delete_images.forEach((id, index) => {
+            formData.append(`delete_images[${index}]`, id);
+          });
+        }
 
         // Add new images
-        const newImages = this.content_images.filter(image => !image.isExisting);
+        const newImages = this.content_images.filter(
+          (image) => !image.isExisting
+        );
         newImages.forEach((file, index) => {
           formData.append(`content_images[${index}]`, file);
         });
 
-        const response = await fetch(`${ngrokUrl}/api/stories/${this.storyId}`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-            'ngrok-skip-browser-warning': '69420',
-          },
-          body: formData
-        });
-
-        const responseText = await response.text();
-        console.log('Response text:', responseText);
+        const response = await fetch(
+          `${ngrokUrl}/api/stories/${this.storyId}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+              "ngrok-skip-browser-warning": "69420",
+            },
+            body: formData,
+          }
+        );
 
         if (!response.ok) {
-          const errorData = JSON.parse(responseText);
-          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          const errorData = await response.json();
+          throw new Error(
+            errorData.message || `HTTP error! status: ${response.status}`
+          );
         }
 
-        const result = JSON.parse(responseText);
-        console.log('Story updated successfully:', result);
+        const result = await response.json();
+        console.log("Story updated successfully:", result);
 
-        alert('Story has been updated successfully!');
-        this.$router.push('/profile');
+        alert("Story has been updated successfully!");
+        this.$router.push("/profile");
       } catch (error) {
-        console.error('Error updating story:', error);
+        console.error("Error updating story:", error);
         alert(`Failed to update story: ${error.message}`);
       }
+    },
+
+    removeImage(index, image) {
+      // If it's an existing image, add its ID to delete_images array
+      if (image.isExisting) {
+        this.delete_images.push(image.id);
+      }
+      this.content_images.splice(index, 1);
     },
 
     triggerFileInput() {
       if (this.content_images.length < 5) {
         this.$refs.fileInput.click();
       } else {
-        alert('Maximum 5 images allowed');
+        alert("Maximum 5 images allowed");
       }
     },
 
     onFilesChange(event) {
       const files = Array.from(event.target.files);
       const totalImages = this.content_images.length + files.length;
-      
+
       if (totalImages > 5) {
-        alert('Maximum 5 images allowed');
+        alert("Maximum 5 images allowed");
         return;
       }
 
-      files.forEach(file => {
-        const isDuplicate = this.content_images.some(existing => 
-          existing.isExisting ? existing.original_name === file.name : existing.name === file.name
+      files.forEach((file) => {
+        const isDuplicate = this.content_images.some((existing) =>
+          existing.isExisting
+            ? existing.original_name === file.name
+            : existing.name === file.name
         );
 
         if (!isDuplicate) {
@@ -244,11 +265,7 @@ export default {
         }
       });
 
-      event.target.value = '';
-    },
-
-    removeImage(index) {
-      this.content_images.splice(index, 1);
+      event.target.value = "";
     },
 
     getImagePreview(image) {
@@ -261,7 +278,7 @@ export default {
 
     format(command, value) {
       document.execCommand(command, false, value);
-      this.updateContent({ target: document.getElementById('content') });
+      this.updateContent({ target: document.getElementById("content") });
     },
 
     updateContent(event) {
@@ -277,9 +294,9 @@ export default {
     },
 
     promptForLink() {
-      const url = prompt('Enter URL:');
+      const url = prompt("Enter URL:");
       if (url) {
-        this.format('createLink', url);
+        this.format("createLink", url);
       }
     },
 
@@ -287,7 +304,7 @@ export default {
       if (this.historyIndex > 0) {
         this.historyIndex--;
         this.content = this.history[this.historyIndex];
-        document.getElementById('content').innerHTML = this.content;
+        document.getElementById("content").innerHTML = this.content;
       }
     },
 
@@ -295,18 +312,18 @@ export default {
       if (this.historyIndex < this.history.length - 1) {
         this.historyIndex++;
         this.content = this.history[this.historyIndex];
-        document.getElementById('content').innerHTML = this.content;
+        document.getElementById("content").innerHTML = this.content;
       }
     },
 
     async fetchCategories() {
       try {
         const response = await fetch(`${ngrokUrl}/api/categories`, {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'ngrok-skip-browser-warning': '69420',
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420",
           },
         });
 
@@ -317,10 +334,14 @@ export default {
         const data = await response.json();
         this.categories = data.data;
       } catch (error) {
-        console.error('Error fetching categories:', error);
-        alert('Failed to load categories. Please refresh the page.');
+        console.error("Error fetching categories:", error);
+        alert("Failed to load categories. Please refresh the page.");
       }
-    }
+    },
+
+    cancel() {
+      this.$router.push("/profile");
+    },
   },
 
   mounted() {
@@ -330,12 +351,12 @@ export default {
 
   beforeUnmount() {
     // Clean up any object URLs created for File previews
-    this.content_images.forEach(image => {
+    this.content_images.forEach((image) => {
       if (!image.isExisting) {
         URL.revokeObjectURL(this.getImagePreview(image));
       }
     });
-  }
+  },
 };
 </script>
 

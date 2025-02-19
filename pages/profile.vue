@@ -99,9 +99,8 @@
         <div v-if="stories.length > 0" class="stories-grid">
           <CardUser v-for="story in paginatedStories" :key="story.id"
             :imageSrc="`${ngrokUrl}/storage/${story.content_images[0].path}`"
-            :profilePic="`${ngrokUrl}/storage/${story.user.image}`" :title="story.title"
-            :description="story.content" :userName="story.user.username" :createdAt="formatDate(story.created_at)"
-            :storyId="story.id" />
+            :profilePic="`${ngrokUrl}/storage/${story.user.image}`" :title="story.title" :description="story.content"
+            :userName="story.user.username" :createdAt="formatDate(story.created_at)" :storyId="story.id" />
         </div>
 
         <div v-else class="story-section text-center">
@@ -117,11 +116,18 @@
       </div>
 
       <div v-else class="col-md-8">
-        <div class="bookmark-section text-center">
+        <div v-if="bookmarks.length > 0" class="stories-grid">
+          <CardBookmark v-for="bookmark in paginatedBookmarks" :key="bookmark.id" :bookmarkId="bookmark.id"
+            :imageSrc="getImageSrc(bookmark)" :profilePic="getProfilePic(bookmark)"
+            :title="bookmark.story?.title || 'Untitled'" :description="bookmark.story?.content || 'No description'"
+            :userName="bookmark.story?.user?.username || 'Unknown'" :createdAt="formatDate(bookmark.story?.created_at)"
+            :category="bookmark.story?.category?.name || 'Uncategorized'" />
+        </div>
+        <div v-else class="bookmark-section text-center">
           <h2>No Bookmarks Yet</h2>
           <p>
             You haven't saved any bookmarks yet. Explore and bookmark your top
-            workouts!
+            stories!
           </p>
           <div class="illustration">
             <img src="@/asset/profile/bookmark.png" alt="Bookmark Illustration" class="img-fluid" />
@@ -131,7 +137,7 @@
     </div>
     <!-- Navigation for My Story and Bookmark -->
 
-    <!-- Pagination -->
+    <!-- Pagination My-->
     <div v-if="stories.length > 0" class="pagination py-5 my-5">
       <span v-for="page in totalPages" :key="page">
         <button v-if="
@@ -157,11 +163,13 @@ import axios from "axios";
 import defaultImage from "@/asset/icon/User.png";
 import Cookies from "js-cookie";
 import CardUser from "~/components/CardUser.vue";
+import CardBookmark from '~/components/CardBookmark.vue';
 import { ngrokUrl } from "@/store/ngrokConfig";
 
 export default {
   components: {
     CardUser,
+    CardBookmark,
   },
   setup() {
     const authStore = useAuthStore();
@@ -180,6 +188,8 @@ export default {
     });
     const currentPage = ref(1);
     const storiesPerPage = 4;
+    const bookmarks = ref([]);
+    const bookmarksPerPage = 4;
 
     const imagePreview = computed(() => {
       if (formData.value.image && formData.value.image instanceof File) {
@@ -262,11 +272,6 @@ export default {
       return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    onMounted(async () => {
-      await userFetchData();
-      await fetchUserStories();
-    });
-
     const openModal = () => {
       isModalOpen.value = true;
     };
@@ -323,6 +328,46 @@ export default {
       }
     };
 
+    // Helper functions untuk mengambil gambar dengan aman
+    const getImageSrc = (bookmark) => {
+      if (bookmark?.story?.content_images?.[0]?.path) {
+        return `${ngrokUrl}/storage/${bookmark.story.content_images[0].path}`;
+      }
+      return defaultImage; // Gunakan gambar default jika tidak ada
+    };
+
+    const getProfilePic = (bookmark) => {
+      if (bookmark?.story?.user?.image) {
+        return `${ngrokUrl}/storage/${bookmark.story.user.image}`;
+      }
+      return defaultImage; // Gunakan gambar default jika tidak ada
+    };
+
+    const paginatedBookmarks = computed(() => {
+      const start = (currentPage.value - 1) * bookmarksPerPage;
+      const end = start + bookmarksPerPage;
+      return bookmarks.value.slice(start, end);
+    });
+
+    const fetchBookmarks = async () => {
+      try {
+        const token = Cookies.get('authToken');
+        if (!token) return;
+
+        const response = await axios.get(`${ngrokUrl}/api/bookmarks`, {
+          headers: {
+            "ngrok-skip-browser-warning": "69420",
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        console.log('Bookmark data:', response.data); // Untuk debugging
+        bookmarks.value = response.data.data;
+      } catch (error) {
+        console.error('Error fetching bookmarks:', error);
+      }
+    };
+
     const showMyStory = () => {
       isMyStory.value = true;
     };
@@ -336,6 +381,12 @@ export default {
         currentPage.value++;
       }
     };
+
+    onMounted(async () => {
+      await userFetchData();
+      await fetchUserStories();
+      await fetchBookmarks();
+    });
 
     return {
       user,
@@ -358,6 +409,10 @@ export default {
       currentPage,
       nextPage,
       ngrokUrl,
+      bookmarks,
+      paginatedBookmarks,
+      getImageSrc,
+      getProfilePic,
     };
   },
 };
@@ -409,6 +464,7 @@ export default {
 
 .btn-profile:hover {
   background-color: #364934;
+  color: white;
 }
 
 .nav-tabs {

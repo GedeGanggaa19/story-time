@@ -1,10 +1,14 @@
 <template>
     <Header class="mb-5"></Header>
-    <h1 class="container my-4 fontPlayfair fw-bold">All Stories</h1>
+    <h1 class="container my-4 fontPlayfair fw-bold">
+        {{ selectedCategory ? selectedCategory : "All Stories" }}
+    </h1>
     <nav class="breadcrumb container-fluid fontDmSans">
         <a href="/" class="breadcrumb-item"><span>Home</span></a>
         <span class="breadcrumb-separator">/</span>
-        <a href="allStory" class="breadcrumb-item"><span>All Stories</span></a>
+        <a href="allStory" class="breadcrumb-item">
+            <span>{{ selectedCategory ? selectedCategory : "All Stories" }}</span>
+        </a>
     </nav>
     <div class="container fontDmSans">
         <div class="d-flex align-items-center justify-content-between">
@@ -19,8 +23,9 @@
                     </select>
                 </div>
                 <div class="category">
+                    <label for="category">Category :</label>
                     <select id="category" v-model="selectedCategory" @change="handleCategoryChange">
-                        <option value="">All</option>
+                        <option value="">All Stories</option>
                         <option v-for="category in categories" :key="category.id" :value="category.name">
                             {{ category.name }}
                         </option>
@@ -30,75 +35,64 @@
             <div>
                 <div class="search-container">
                     <input type="text" v-model="searchQuery" placeholder="Search story" class="search-input"
-                        @input="handleSearch" />
+                        @input="debounceSearch" />
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
                 </div>
             </div>
         </div>
-        <div v-if="loading" class="text-center py-5">
-            Loading...
-        </div>
-        <div v-else-if="filteredStories.length === 0" class="text-center py-5">
-            No stories found
+        <div v-if="loading" class="text-center py-5">Loading...</div>
+        <div v-else-if="stories.length === 0" class="text-center py-5">
+            <img src="../asset/profile/nostory.jpg" alt="No stories found" class="nostory-image" />
         </div>
         <div v-else class="story-list pt-5">
-            <CardLatest
-                v-for="story in filteredStories"
-                :key="story.id"
-                :id="story.id"
-                :imageSrc="story.content_images?.[0]?.path ? `${ngrokUrl}/storage/${story.content_images[0].path}` : ''"
-                :profilePic="story.user?.image ? `${ngrokUrl}/storage/${story.user.image}` : ''"
-                :title="story.title || ''"
-                :description="story.content || ''"
-                :userName="story.user?.username || ''"
-                :createdAt="formatDate(story.created_at)"
-                :category="story.category?.name || ''"
-            />
+            <CardLatest v-for="story in stories" :key="story.id" :id="story.id" :imageSrc="story.content_images?.[0]?.path
+                    ? `${ngrokUrl}/storage/${story.content_images[0].path}`
+                    : ''
+                " :profilePic="story.user?.image ? `${ngrokUrl}/storage/${story.user.image}` : ''
+            " :title="story.title || ''" :description="story.content || ''" :userName="story.user?.username || ''"
+                :createdAt="formatDate(story.created_at)" :category="story.category?.name || ''" />
         </div>
-        <div v-if="filteredStories.length > 0" class="pagination py-5 my-5">
+        <div v-if="stories.length > 0" class="pagination py-5 my-5">
             <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
             <span v-for="page in displayedPages" :key="page">
                 <button @click="goToPage(page)" :class="{ active: currentPage === page }">
                     {{ page }}
                 </button>
             </span>
-            <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+            <button @click="nextPage" :disabled="currentPage === totalPages">
+                Next
+            </button>
         </div>
     </div>
     <Footer class="mt-5"></Footer>
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue';
-import { useAuthStore } from '@/store/auth';
-import CardLatest from '@/components/CardLatest.vue';
-import axios from 'axios';
-import { ngrokUrl } from '@/store/ngrokConfig';
+import { ref, computed, onMounted, watch, onBeforeMount } from "vue";
+import { useAuthStore } from "@/store/auth";
+import { useRoute, useRouter } from "vue-router";
+import CardLatest from "@/components/CardLatest.vue";
+import axios from "axios";
+import { ngrokUrl } from "@/store/ngrokConfig";
 
 export default {
     components: {
         CardLatest,
     },
     setup() {
+        const route = useRoute();
+        const router = useRouter();
         const authStore = useAuthStore();
-        const sortOption = ref('newest');
-        const selectedCategory = ref('');
-        const searchQuery = ref('');
+        const sortOption = ref("newest");
+        const selectedCategory = ref("");
+        const searchQuery = ref("");
         const currentPage = ref(1);
         const itemsPerPage = 12;
         const stories = ref([]);
         const totalPages = ref(0);
         const categories = ref([]);
         const loading = ref(false);
-
-        const filteredStories = computed(() => {
-            if (!selectedCategory.value) {
-                return stories.value;
-            }
-            return stories.value.filter(story => 
-                story.category?.name === selectedCategory.value
-            );
-        });
+        let searchTimeout = null;
 
         const displayedPages = computed(() => {
             const pages = [];
@@ -116,50 +110,82 @@ export default {
             return pages;
         });
 
+        onBeforeMount(() => {
+            if (route.query.category) {
+                selectedCategory.value = route.query.category;
+            }
+            if (route.query.search) {
+                searchQuery.value = route.query.search;
+            }
+        });
+
         const fetchStories = async () => {
             if (loading.value) return;
             loading.value = true;
-            stories.value = []; // Reset stories before fetching
+            stories.value = [];
 
             try {
                 let endpoint = `${ngrokUrl}/api/stories`;
-                switch (sortOption.value) {
-                    case 'newest':
-                        endpoint = `${ngrokUrl}/api/newest`;
-                        break;
-                    case 'popular':
-                        endpoint = `${ngrokUrl}/api/popular`;
-                        break;
-                    case 'az':
-                        endpoint = `${ngrokUrl}/api/az`;
-                        break;
-                    case 'za':
-                        endpoint = `${ngrokUrl}/api/za`;
-                        break;
-                }
-
-                const params = {
+                let params = {
                     page: currentPage.value,
                     per_page: itemsPerPage,
                 };
 
-                if (searchQuery.value) {
-                    params.search = searchQuery.value;
+                // Jika ada query pencarian yang tidak kosong
+                if (searchQuery.value.trim()) {
+                    params.search = searchQuery.value.trim();
+                } else {
+                    // Jika tidak ada pencarian, gunakan filter kategori atau sorting
+                    if (selectedCategory.value) {
+                        const category = categories.value.find(
+                            (c) => c.name === selectedCategory.value
+                        );
+                        if (category) {
+                            console.log("Category ID:", category.id);
+                            endpoint = `${ngrokUrl}/api/category/${category.id}`;
+                            delete params.search; // Pastikan parameter search dihapus
+                        }
+                    } else {
+                        switch (sortOption.value) {
+                            case "newest":
+                                endpoint = `${ngrokUrl}/api/newest`;
+                                break;
+                            case "popular":
+                                endpoint = `${ngrokUrl}/api/popular`;
+                                break;
+                            case "az":
+                                endpoint = `${ngrokUrl}/api/az`;
+                                break;
+                            case "za":
+                                endpoint = `${ngrokUrl}/api/za`;
+                                break;
+                        }
+                    }
                 }
+
+                console.log("Fetching with params:", params); // Untuk debugging
 
                 const response = await axios.get(endpoint, {
                     headers: {
-                        "ngrok-skip-browser-warning": "69420"
+                        "ngrok-skip-browser-warning": "69420",
                     },
-                    params
+                    params,
                 });
 
-                if (response.data?.data?.data) {
-                    stories.value = response.data.data.data;
-                    totalPages.value = response.data.data.last_page;
+                if (response.data?.data) {
+                    if (Array.isArray(response.data.data)) {
+                        stories.value = response.data.data;
+                        totalPages.value = Math.ceil(
+                            response.data.data.length / itemsPerPage
+                        );
+                    } else if (response.data.data.data) {
+                        stories.value = response.data.data.data;
+                        totalPages.value = response.data.data.last_page;
+                    }
                 }
             } catch (error) {
-                console.error('Error fetching stories:', error);
+                console.error("Error fetching stories:", error);
+                stories.value = [];
             } finally {
                 loading.value = false;
             }
@@ -169,33 +195,64 @@ export default {
             try {
                 const response = await axios.get(`${ngrokUrl}/api/categories`, {
                     headers: {
-                        "ngrok-skip-browser-warning": "69420"
-                    }
+                        "ngrok-skip-browser-warning": "69420",
+                    },
                 });
                 categories.value = response.data.data;
             } catch (error) {
-                console.error('Error fetching categories:', error);
+                console.error("Error fetching categories:", error);
+                categories.value = [];
             }
         };
 
-        // Watch for changes in filters
-        watch([sortOption, searchQuery], () => {
-            currentPage.value = 1; // Reset to first page
-            fetchStories();
+        // Debounce function untuk pencarian
+        const debounceSearch = () => {
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            searchTimeout = setTimeout(() => {
+                handleSearch();
+            }, 500); // Tunggu 500ms setelah user berhenti mengetik
+        };
+
+        watch([sortOption, selectedCategory], () => {
+            if (!searchQuery.value.trim()) {
+                currentPage.value = 1;
+                fetchStories();
+            }
         });
 
         const handleSortChange = () => {
-            currentPage.value = 1;
-            fetchStories();
+            if (!searchQuery.value.trim()) {
+                currentPage.value = 1;
+                fetchStories();
+            }
         };
 
         const handleCategoryChange = () => {
-            currentPage.value = 1;
-            // Tidak perlu memanggil fetchStories karena kita menggunakan computed property
+            if (!searchQuery.value.trim()) {
+                currentPage.value = 1;
+                const newQuery = { ...route.query, category: selectedCategory.value };
+                if (!selectedCategory.value) {
+                    delete newQuery.category;
+                }
+                router.push({ query: newQuery });
+                fetchStories();
+            }
         };
 
         const handleSearch = () => {
             currentPage.value = 1;
+            // Reset kategori dan sorting saat melakukan pencarian
+            if (searchQuery.value.trim()) {
+                selectedCategory.value = "";
+                sortOption.value = "newest";
+            }
+            const newQuery = { ...route.query, search: searchQuery.value };
+            if (!searchQuery.value) {
+                delete newQuery.search;
+            }
+            router.push({ query: newQuery });
             fetchStories();
         };
 
@@ -219,8 +276,8 @@ export default {
         };
 
         const formatDate = (date) => {
-            if (!date) return '';
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            if (!date) return "";
+            const options = { year: "numeric", month: "long", day: "numeric" };
             return new Date(date).toLocaleDateString(undefined, options);
         };
 
@@ -228,7 +285,7 @@ export default {
             await Promise.all([
                 authStore.fetchUserData(),
                 fetchCategories(),
-                fetchStories()
+                fetchStories(),
             ]);
         });
 
@@ -240,13 +297,12 @@ export default {
             currentPage,
             totalPages,
             stories,
-            filteredStories,
             categories,
             displayedPages,
             loading,
             handleSortChange,
             handleCategoryChange,
-            handleSearch,
+            debounceSearch,
             goToPage,
             nextPage,
             prevPage,
@@ -256,13 +312,11 @@ export default {
     },
     head() {
         return {
-            title: 'Welcome to Storytime',
+            title: "Welcome to Storytime",
         };
     },
 };
 </script>
-
-
 
 <style scoped>
 .fontPlayfair {
@@ -271,6 +325,12 @@ export default {
 
 .fontDmSans {
     font-family: dm-sans, sans-serif;
+}
+
+.nostory-image {
+    width: 50%;
+    height: auto;
+    margin-top: -80px;
 }
 
 .container-fluid {

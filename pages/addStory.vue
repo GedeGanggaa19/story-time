@@ -151,7 +151,7 @@ export default {
         });
 
         const response = await fetch(
-          "https://5557-103-100-175-121.ngrok-free.app/api/stories",
+          "https://d823-180-249-187-133.ngrok-free.app/api/stories",
           {
             method: "POST",
             headers: {
@@ -280,7 +280,7 @@ export default {
       try {
         const authStore = useAuthStore();
         const response = await fetch(
-          "https://5557-103-100-175-121.ngrok-free.app/api/categories",
+          "https://d823-180-249-187-133.ngrok-free.app/api/categories",
           {
             method: "GET",
             headers: {

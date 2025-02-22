@@ -40,9 +40,11 @@
                 </div>
             </div>
         </div>
-        <div v-if="loading" class="text-center py-5">Loading...</div>
+        <div v-if="loading" class="loading-container">
+            <div class="spinner"></div>
+        </div>
         <div v-else-if="stories.length === 0" class="text-center py-5">
-            <img src="../asset/profile/nostory.jpg" alt="No stories found" class="nostory-image" />
+            <img src="../asset/profile/test2.png" alt="No stories found" class="nostory-image" />
         </div>
         <div v-else class="story-list pt-5">
             <CardLatest v-for="story in stories" :key="story.id" :id="story.id" :imageSrc="story.content_images?.[0]?.path
@@ -330,7 +332,7 @@ export default {
 .nostory-image {
     width: 50%;
     height: auto;
-    margin-top: -80px;
+    margin-top: -40px;
 }
 
 .container-fluid {
@@ -512,5 +514,32 @@ label {
     /* Warna untuk tombol aktif */
     color: white;
     /* Warna teks untuk tombol aktif */
+}
+
+/* Loading Styles */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #466543;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

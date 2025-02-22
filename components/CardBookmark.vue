@@ -77,7 +77,7 @@ const deleteBookmark = async () => {
     }
 
     await axios.delete(
-      `https://5557-103-100-175-121.ngrok-free.app/api/bookmarks/${props.bookmarkId}`,
+      `https://d823-180-249-187-133.ngrok-free.app/api/bookmarks/${props.bookmarkId}`,
       {
         headers: {
           "ngrok-skip-browser-warning": "69420",

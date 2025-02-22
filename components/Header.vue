@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-lg bg-white p-3 sticky-top">
+  <nav class="navbar transparant navbar-expand-lg p-3 sticky-top">
     <div class="container">
       <!-- Logo -->
       <nuxt-link class="navbar-brand" to="/">
@@ -109,7 +109,7 @@ export default {
     const logout = async () => {
       const token = Cookies.get("authToken"); // Get token from cookies
       if (token) {
-        await fetch("https://5557-103-100-175-121.ngrok-free.app/api/logout", {
+        await fetch("https://d823-180-249-187-133.ngrok-free.app/api/logout", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -140,7 +140,7 @@ export default {
       isLogoutModalOpen,
       openLogoutModal,
       closeLogoutModal,
-      isLoggedIn, // Return the computed property for login status
+      isLoggedIn, 
     };
   },
 };
@@ -162,7 +162,12 @@ export default {
 
 .navbar {
   border-bottom: 1px solid #dee2e6;
-  z-index: 1;
+  z-index: 100;
+}
+
+.transparant {
+  background-color: rgba(255, 255, 255, 0.5); 
+  backdrop-filter: blur(10px); 
 }
 
 .register {
@@ -227,7 +232,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1;
 }
 
 .modal-content {

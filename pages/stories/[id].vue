@@ -28,7 +28,7 @@
           <div class="row content-wrapper mb-5">
             <div class="col-md-4 pe-4">
               <img :src="`${ngrokUrl}/storage/${story.content_images[0].path}`" :alt="story.title"
-                class="cover-image" />
+                class="cover-image" @click="openImageGallery(0)" />
               <div class="image-grid" v-if="story.content_images.length > 1">
                 <div class="grid-container">
                   <img v-for="(image, index) in story.content_images.slice(1)" :key="index"
@@ -45,6 +45,19 @@
           <div class="bookmark-icon" @click="toggleBookmark" :class="{ 'bookmarked': isBookmarked }">
           </div>
         </article>
+
+        <!-- Image Modal -->
+        <div class="image-modal" v-if="showModal" @click="closeImageGallery">
+          <div class="modal-content" @click.stop>
+            <button class="close-button" @click="closeImageGallery">&times;</button>
+            <button class="nav-button prev" @click="prevImage" v-if="story.content_images.length > 1">&lt;</button>
+            <button class="nav-button next" @click="nextImage" v-if="story.content_images.length > 1">&gt;</button>
+            <img :src="`${ngrokUrl}/storage/${story.content_images[currentImageIndex].path}`" 
+                :alt="`${story.title} image ${currentImageIndex + 1}`" 
+                class="modal-image" />
+            <div class="image-counter">{{ currentImageIndex + 1 }} / {{ story.content_images.length }}</div>
+          </div>
+        </div>
 
         <!-- Similar Stories Section -->
         <section v-if="similarStories.length" class="similar-stories mt-5">
@@ -85,6 +98,50 @@ const story = ref(null);
 const similarStories = ref([]);
 const loading = ref(true);
 const isBookmarked = ref(false);
+
+// Image Gallery State
+const showModal = ref(false);
+const currentImageIndex = ref(0);
+
+const openImageGallery = (index) => {
+  currentImageIndex.value = index;
+  showModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+const closeImageGallery = () => {
+  showModal.value = false;
+  document.body.style.overflow = 'auto';
+};
+
+const nextImage = () => {
+  if (currentImageIndex.value < story.value.content_images.length - 1) {
+    currentImageIndex.value++;
+  }
+};
+
+const prevImage = () => {
+  if (currentImageIndex.value > 0) {
+    currentImageIndex.value--;
+  }
+};
+
+// Handle keyboard navigation
+const handleKeydown = (e) => {
+  if (!showModal.value) return;
+  
+  switch(e.key) {
+    case 'ArrowLeft':
+      prevImage();
+      break;
+    case 'ArrowRight':
+      nextImage();
+      break;
+    case 'Escape':
+      closeImageGallery();
+      break;
+  }
+};
 
 const checkBookmarkStatus = async () => {
   try {
@@ -198,6 +255,11 @@ const formatDate = (date) => {
 
 onMounted(() => {
   fetchStory();
+  window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown);
 });
 </script>
 
@@ -256,6 +318,12 @@ onMounted(() => {
   width: 100%;
   height: auto;
   border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.cover-image:hover {
+  transform: scale(1.02);
 }
 
 .image-grid {
@@ -273,6 +341,84 @@ onMounted(() => {
   height: auto;
   border-radius: 10px;
   cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.grid-image:hover {
+  transform: scale(1.05);
+}
+
+/* Image Modal Styles */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90vh;
+}
+
+.modal-image {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+}
+
+.close-button {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 15px;
+  cursor: pointer;
+  font-size: 20px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.nav-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.prev {
+  left: -60px;
+}
+
+.next {
+  right: -60px;
+}
+
+.image-counter {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 14px;
 }
 
 .similar-stories {
